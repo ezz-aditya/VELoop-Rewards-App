@@ -1,0 +1,811 @@
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+#root {
+  min-height: 100vh;
+}
+
+.streak-app {
+  min-height: 100vh;
+  background: #100d1b;
+  color: #f7f4ff;
+  font-family: 'Inter', sans-serif;
+}
+
+.topbar {
+  height: 72px;
+  padding: 0 7%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #171226;
+  border-bottom: 1px solid #302641;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  color: white;
+  text-decoration: none;
+  font-weight: 800;
+  font-size: 21px;
+}
+
+.brand-icon {
+  display: grid;
+  place-items: center;
+  width: 35px;
+  height: 35px;
+  border-radius: 11px;
+  background: #9a6aff;
+  color: white;
+}
+
+.brand-light {
+  color: #bca7e8;
+  font-weight: 500;
+}
+
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.balance {
+  background: #29203d;
+  border: 1px solid #47345f;
+  border-radius: 30px;
+  padding: 10px 15px;
+  color: #f6d77b;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: #6744a0;
+  font-weight: 700;
+}
+
+.main-content {
+  max-width: 1200px;
+  width: 86%;
+  margin: 0 auto;
+}
+
+.breadcrumb {
+  color: #9187a7;
+  font-size: 12px;
+  padding: 25px 0 18px;
+}
+
+.hero {
+  min-height: 315px;
+  border: 1px solid #47305d;
+  border-radius: 22px;
+  background: linear-gradient(115deg, #241638, #38214c 62%, #241631);
+  padding: 38px 48px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  overflow: hidden;
+}
+
+.hero-copy {
+  max-width: 570px;
+  position: relative;
+  z-index: 1;
+}
+
+.eyebrow {
+  color: #d9b967;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 2px;
+}
+
+.hero h1 {
+  font-size: clamp(30px, 3.6vw, 46px);
+  line-height: 1.17;
+  letter-spacing: -1.6px;
+  margin: 15px 0;
+  font-weight: 800;
+}
+
+.hero h1 span {
+  color: #f2ce73;
+}
+
+.hero-copy > p,
+.section-heading p,
+.why-section p {
+  color: #b9aecb;
+  font-size: 13px;
+  line-height: 1.8;
+}
+
+.hero-stats {
+  display: flex;
+  gap: 30px;
+  margin-top: 26px;
+}
+
+.hero-stats div {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.hero-stats strong {
+  font-size: 14px;
+}
+
+.hero-stats span {
+  font-size: 11px;
+  color: #b4a7c8;
+}
+
+.hero-art {
+  position: relative;
+  width: 260px;
+  height: 225px;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+}
+
+.orbit {
+  position: absolute;
+  width: 190px;
+  height: 190px;
+  border: 1px solid #8e68b5;
+  border-radius: 50%;
+  opacity: .45;
+}
+
+.orbit-two {
+  width: 145px;
+  height: 145px;
+  border-color: #e8c46e;
+  opacity: .4;
+}
+
+.hero-gift {
+  font-size: 95px;
+  filter: drop-shadow(0 12px 20px #090611);
+  animation: float 3s ease-in-out infinite;
+}
+
+.spark {
+  position: absolute;
+  color: #f5d276;
+  font-size: 25px;
+}
+
+.spark-one { top: 25px; right: 32px; }
+.spark-two { left: 25px; top: 75px; }
+.spark-three { bottom: 48px; right: 35px; }
+
+.hero-art-label {
+  position: absolute;
+  bottom: 0;
+  font-size: 9px;
+  letter-spacing: 1.5px;
+  color: #dfc8f6;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin: 22px 0 46px;
+}
+
+.stat-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 21px;
+  background: #1a1527;
+  border: 1px solid #302640;
+  border-radius: 15px;
+}
+
+.stat-icon {
+  display: grid;
+  place-items: center;
+  width: 45px;
+  height: 45px;
+  border-radius: 13px;
+  background: #2b2040;
+  font-size: 21px;
+}
+
+.stat-card div {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.stat-card div span {
+  font-size: 11px;
+  color: #aa9dbf;
+}
+
+.stat-card strong {
+  font-size: 21px;
+}
+
+.rewards-section {
+  margin-bottom: 40px;
+}
+
+.section-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 23px;
+}
+
+.section-heading h2 {
+  margin: 9px 0 5px;
+  font-size: 26px;
+  letter-spacing: -.6px;
+}
+
+.section-heading p {
+  margin: 0;
+}
+
+.progress-pill {
+  padding: 9px 14px;
+  border-radius: 30px;
+  background: #241c34;
+  border: 1px solid #453454;
+  color: #e7cb80;
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.rewards-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 15px;
+}
+
+.reward-card {
+  min-width: 0;
+  min-height: 230px;
+  background: #1b1628;
+  border: 1px solid #332741;
+  border-radius: 16px;
+  padding: 17px 13px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  transition: transform .2s, border-color .2s;
+}
+
+.reward-card:hover {
+  transform: translateY(-3px);
+  border-color: #6b4c88;
+}
+
+.reward-card.is-today {
+  background: linear-gradient(160deg, #30213f, #1d1729);
+  border-color: #b18a4a;
+  box-shadow: 0 0 22px #b18a4a12;
+}
+
+.reward-card.is-claimed {
+  border-color: #3b8d68;
+}
+
+.day-label {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 10px;
+  font-weight: 800;
+  color: #c0b3d3;
+}
+
+.today-tag {
+  color: #f2ce73;
+  font-size: 9px;
+}
+
+.mini-check {
+  color: #72d6a1;
+}
+
+.reward-art {
+  font-size: 42px;
+  margin: 17px 0 8px;
+}
+
+.reward-amount {
+  font-size: 23px;
+  color: #f2ce73;
+}
+
+.reward-type {
+  min-height: 32px;
+  margin: 5px 0 14px;
+  font-size: 10px;
+  color: #b8abc9;
+  line-height: 1.5;
+}
+
+.reward-button {
+  width: 100%;
+  margin-top: auto;
+  padding: 10px 5px;
+  border: 1px solid #43364f;
+  border-radius: 8px;
+  background: #292134;
+  color: #a99bb9;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.reward-button:disabled {
+  opacity: .9;
+  cursor: not-allowed;
+}
+
+.reward-button.claim-button {
+  border: 0;
+  color: #25182c;
+  background: linear-gradient(90deg, #f0d17d, #d9ac55);
+  cursor: pointer;
+}
+
+.reward-button.claim-button:hover {
+  filter: brightness(1.08);
+}
+
+.demo-note {
+  color: #887d9a;
+  font-size: 11px;
+  line-height: 1.7;
+  margin-top: 15px;
+}
+
+.why-section {
+  display: flex;
+  align-items: flex-start;
+  gap: 17px;
+  padding: 25px;
+  background: #1a1527;
+  border: 1px solid #342744;
+  border-radius: 16px;
+  margin-bottom: 35px;
+}
+
+.why-icon {
+  font-size: 25px;
+}
+
+.why-section h3 {
+  margin: 2px 0 8px;
+  font-size: 16px;
+}
+
+.why-section p {
+  margin: 0;
+}
+
+.footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 15px;
+  padding: 24px 0;
+  border-top: 1px solid #302640;
+  color: #8f829f;
+  font-size: 11px;
+}
+
+@media (min-width: 1100px) {
+  .rewards-grid {
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+  }
+
+  .reward-card {
+    padding: 15px 10px;
+  }
+
+  .reward-amount {
+    font-size: 20px;
+  }
+}
+
+@media (max-width: 700px) {
+  .topbar {
+    height: 64px;
+    padding: 0 5%;
+  }
+
+  .brand {
+    font-size: 17px;
+    gap: 6px;
+  }
+
+  .brand-icon {
+    width: 30px;
+    height: 30px;
+  }
+
+  .brand-light {
+    display: none;
+  }
+
+  .nav-right {
+    gap: 9px;
+  }
+
+  .balance {
+    padding: 8px 10px;
+    font-size: 11px;
+  }
+
+  .main-content {
+    width: 90%;
+  }
+
+  .hero {
+    padding: 27px 22px;
+    min-height: auto;
+  }
+
+  .hero h1 {
+    font-size: 32px;
+    letter-spacing: -1px;
+  }
+
+  .hero-art {
+    display: none;
+  }
+
+  .hero-stats {
+    gap: 20px;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+    margin-bottom: 35px;
+  }
+
+  .stat-card {
+    padding: 14px;
+  }
+
+  .stat-card strong {
+    font-size: 18px;
+  }
+
+  .section-heading h2 {
+    font-size: 22px;
+  }
+
+  .rewards-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 11px;
+  }
+
+  .reward-card {
+    min-height: 220px;
+    padding: 14px 10px;
+  }
+
+  .why-section {
+    padding: 18px;
+  }
+
+  .footer {
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 360px) {
+  .hero h1 {
+    font-size: 27px;
+  }
+
+  .hero-stats {
+    gap: 12px;
+  }
+
+  .reward-amount {
+    font-size: 20px;
+  }
+
+  .reward-type {
+    font-size: 9px;
+  }
+}
+
+/* Team asset image sizing fixes */
+
+.hero {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.hero-art {
+  position: relative;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.hero-art-picture {
+  display: flex;
+  width: 100%;
+  max-width: 360px;
+  align-items: center;
+  justify-content: center;
+}
+
+.hero-main-image {
+  display: block;
+  width: 100%;
+  max-width: 340px;
+  max-height: 300px;
+  object-fit: contain;
+}
+
+.hero-decoration {
+  position: absolute;
+  width: 90px;
+  height: 90px;
+  object-fit: contain;
+  pointer-events: none;
+  z-index: -1;
+}
+
+.hero-decoration-left {
+  top: 12px;
+  left: 12px;
+}
+
+.hero-decoration-right {
+  right: 8px;
+  top: 8px;
+}
+
+.inline-icon {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+  vertical-align: middle;
+}
+
+.balance-coin {
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+  vertical-align: middle;
+}
+
+.stat-image {
+  display: block;
+  width: 30px;
+  height: 30px;
+  object-fit: contain;
+}
+
+.reward-art {
+  display: flex;
+  height: 100px;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.reward-image {
+  display: block;
+  width: 100%;
+  max-width: 100px;
+  height: 90px;
+  object-fit: contain;
+}
+
+.why-image,
+.why-side-image {
+  display: block;
+  width: 100%;
+  max-width: 130px;
+  max-height: 110px;
+  object-fit: contain;
+}
+
+.trust-section {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.trust-image {
+  display: block;
+  width: 100%;
+  max-width: 160px;
+  max-height: 90px;
+  object-fit: contain;
+}
+
+@media (max-width: 700px) {
+  .hero-art-picture {
+    max-width: 260px;
+  }
+
+  .hero-main-image {
+    max-width: 240px;
+    max-height: 220px;
+  }
+
+  .hero-decoration {
+    width: 55px;
+    height: 55px;
+  }
+
+  .reward-art {
+    height: 78px;
+  }
+
+  .reward-image {
+    max-width: 72px;
+    height: 70px;
+  }
+
+  .why-image,
+  .why-side-image {
+    max-width: 90px;
+    max-height: 80px;
+  }
+}
+
+/* Fix hero artwork overlapping the heading */
+
+.hero-copy {
+  position: relative;
+  z-index: 2;
+}
+
+.hero-decoration-left {
+  top: auto;
+  left: 16px;
+  bottom: 16px;
+  width: 64px;
+  height: 64px;
+  opacity: 0.45;
+  pointer-events: none;
+}
+
+.hero-decoration-right {
+  z-index: 0;
+  width: 76px;
+  height: 76px;
+  opacity: 0.85;
+  pointer-events: none;
+}
+
+.hero-art-picture {
+  position: relative;
+  z-index: 1;
+}
+
+
+/* Keep the top-left asset without overlapping text */
+.hero-decoration-left {
+  display: block !important;
+  position: absolute;
+  top: 18px;
+  left: 18px;
+  bottom: auto;
+  width: 58px;
+  height: 58px;
+  object-fit: contain;
+  opacity: 0.9;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.hero-copy {
+  position: relative;
+  z-index: 2;
+  padding-left: 34px;
+}
+
+@media (max-width: 700px) {
+  .hero-decoration-left {
+    width: 42px;
+    height: 42px;
+    top: 10px;
+    left: 10px;
+  }
+
+  .hero-copy {
+    padding-left: 0;
+  }
+}
+
+/* Reward card polish */
+.rewards-grid {
+  align-items: stretch;
+  gap: 14px;
+}
+
+.reward-card {
+  min-width: 0;
+  padding: 14px 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.reward-art {
+  height: 112px;
+  flex-shrink: 0;
+}
+
+.reward-image {
+  max-width: 108px;
+  height: 100px;
+  object-fit: contain;
+}
+
+.reward-amount {
+  margin-top: 4px;
+  font-size: 1.15rem;
+}
+
+.reward-type {
+  min-height: 30px;
+  text-align: center;
+  line-height: 1.4;
+}
+
+.reward-button {
+  width: 100%;
+  margin-top: auto;
+  min-height: 38px;
+}
+
+@media (max-width: 700px) {
+  .rewards-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+
+  .reward-art {
+    height: 96px;
+  }
+
+  .reward-image {
+    max-width: 90px;
+    height: 86px;
+  }
+}
+
