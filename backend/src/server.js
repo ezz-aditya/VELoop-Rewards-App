@@ -20,9 +20,12 @@ app.get('/', (req, res) => {
   });
 });
 app.get('/health', (req, res) => {
+  console.log('HEALTH ROUTE HIT');
+
   res.status(200).json({
     success: true,
-    message: 'Backend is reachable'
+    message: 'Backend is reachable',
+    path: req.path
   });
 });
 
