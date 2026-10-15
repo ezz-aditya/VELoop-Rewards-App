@@ -19,6 +19,12 @@ app.get('/', (req, res) => {
     status: 'success'
   });
 });
+app.get('/health', (req, res) => {
+  res.status(200).json({
+    success: true,
+    message: 'Backend is reachable'
+  });
+});
 
 const PORT = process.env.PORT || 5000;
 
