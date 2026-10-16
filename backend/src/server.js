@@ -23,15 +23,6 @@ app.get('/', (req, res) => {
     status: 'success'
   });
 });
-app.get('/health', (req, res) => {
-  console.log('HEALTH ROUTE HIT');
-
-  res.status(200).json({
-    success: true,
-    message: 'Backend is reachable',
-    path: req.path
-  });
-});
 
 const PORT = process.env.PORT || 5000;
 

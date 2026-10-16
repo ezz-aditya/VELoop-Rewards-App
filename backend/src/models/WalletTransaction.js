@@ -6,7 +6,8 @@ const walletTransactionSchema = new mongoose.Schema(
     user: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
-      required: true
+      required: true,
+      index: true
     },
 
     wallet: {
@@ -41,7 +42,6 @@ const walletTransactionSchema = new mongoose.Schema(
 
     description: {
       type: String,
-      trim: true,
       default: ''
     },
 
@@ -55,8 +55,6 @@ const walletTransactionSchema = new mongoose.Schema(
     timestamps: true
   }
 );
-
-walletTransactionSchema.index({ user: 1, createdAt: -1 });
 
 module.exports = mongoose.model(
   'WalletTransaction',
