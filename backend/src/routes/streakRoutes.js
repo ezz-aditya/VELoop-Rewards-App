@@ -374,5 +374,25 @@ router.get('/daily-streak/history', authMiddleware, async (req, res) => {
   }
 });
 
+router.get('/wallet', authMiddleware, async (req, res) => {
+  try {
+    const wallet = await Wallet.findOne({
+      user: req.user.userId,
+    });
+
+    res.json({
+      success: true,
+      balance: wallet ? wallet.balance : 0,
+    });
+  } catch (error) {
+    console.error('Wallet fetch error:', error);
+
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch wallet balance',
+    });
+  }
+});
+
 
 module.exports = router;
