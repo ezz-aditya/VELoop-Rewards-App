@@ -16,7 +16,7 @@ import topLeft from './assets/Top_Left.png';
 import trust from './assets/Trust.png';
 import vesCoin from './assets/VEs_Coin.png';
 
-const API_URL = 'http://localhost:5000/api';
+const API_URL = import.meta.env.VITE_API_URL;
 
 const rewardImages = {
   1: vesCoin,
@@ -152,7 +152,8 @@ async function fetchWalletBalance(authToken = token) {
         const response = await axios.get(
           `${API_URL}/daily-streak`
         );
-
+          console.log('API URL:', API_URL);
+          console.log('Rewards API response:', response.data);
         const apiRewards = (response.data.rewards || []).map(
           (reward) => ({
             day: reward.day,
