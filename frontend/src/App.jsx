@@ -1,8 +1,8 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import './App.css';
-
+import AuthPanel from './AuthPanel';
 import biggerStreak from './assets/Bigger_Streak.png';
 import day4Reward from './assets/Day-4.png';
 import day5Reward from './assets/Day-5.png';
@@ -17,6 +17,10 @@ import trust from './assets/Trust.png';
 import vesCoin from './assets/VEs_Coin.png';
 
 const API_URL = import.meta.env.VITE_API_URL;
+
+
+
+
 
 const rewardImages = {
   1: vesCoin,
@@ -38,6 +42,14 @@ function App() {
   const [loginLoading, setLoginLoading] = useState(false);
   const [loginError, setLoginError] = useState('');
 
+  const [isRegister, setIsRegister] = useState(false);
+  const [name, setName] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [registerLoading, setRegisterLoading] = useState(false);
+  const [registerError, setRegisterError] = useState('');
+  const [registerSuccess, setRegisterSuccess] = useState('');
+
+
   const [rewards, setRewards] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -45,48 +57,145 @@ function App() {
   const [claimed, setClaimed] = useState(false);
   const [walletBalance, setWalletBalance] = useState(0);
   const [streakStatus, setStreakStatus] = useState(null);
-const [statusLoading, setStatusLoading] = useState(false);
+  const [statusLoading, setStatusLoading] = useState(false);
   const [claimLoading, setClaimLoading] = useState(false);
-const [claimMessage, setClaimMessage] = useState('');
+  const [claimMessage, setClaimMessage] = useState('');
+  useEffect(() => {
+    let cancelled = false;
 
-  
-async function handleClaim() {
-  if (!token || claimLoading || claimed) return;
+    async function fetchRewards() {
+      try {
+        const response = await axios.get(`${API_URL}/daily-streak`);
 
-  setClaimLoading(true);
-  setClaimMessage('');
+        if (cancelled) return;
 
-  try {
-    const response = await axios.post(
-      `${API_URL}/daily-streak/claim`,
-      {},
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        const data = response.data;
+        const rewardsData = Array.isArray(data)
+          ? data
+          : data.rewards || data.data || [];
+
+        console.log('Daily streak API response:', data);
+        console.log('Parsed rewards:', rewardsData);
+
+        setRewards(
+          rewardsData.map((reward) => ({
+            ...reward,
+            image: reward.image || rewardImages[reward.day] || vesCoin,
+          }))
+        );
+      } catch (err) {
+        console.error('Failed to fetch rewards:', err);
+        if (!cancelled) {
+          setError('Unable to load rewards. Please try again.');
+        }
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+        }
       }
-    );
+    }
 
-    if (response.data.success) {
-      setClaimed(true);
-      setClaimMessage(
-        response.data.message || 'Reward claimed successfully!'
-      );
-    }
-  } catch (err) {
-    if (err.response?.status === 401) {
-      setClaimMessage('Session expired. Please log in again.');
-    } else {
-      setClaimMessage(
-        err.response?.data?.message ||
-          'Reward claim nahi hua. Please try again.'
-      );
-    }
-  } finally {
-    setClaimLoading(false);
-  }
-}
-  
+    fetchRewards();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  // Fetch wallet balance.
+  const fetchWalletBalance = useCallback(
+    async (authToken = token) => {
+      if (!authToken) {
+        setWalletBalance(0);
+        return;
+      }
+
+      try {
+        const response = await axios.get(`${API_URL}/wallet`, {
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+          },
+        });
+
+        setWalletBalance(response.data.balance ?? 0);
+      } catch (err) {
+        console.error('Failed to fetch wallet balance:', err);
+      }
+    },
+    [token]
+  );
+
+  // Fetch streak status and determine whether today's reward was claimed.
+  const fetchStreakStatus = useCallback(
+    async (authToken = token) => {
+      if (!authToken) {
+        setClaimed(false);
+        setStreakStatus(null);
+        setStatusLoading(false);
+        return;
+      }
+
+      setStatusLoading(true);
+
+      try {
+        const response = await axios.get(
+          `${API_URL}/daily-streak/status`,
+          {
+            headers: {
+              Authorization: `Bearer ${authToken}`,
+            },
+            params: {
+              _refresh: Date.now(),
+            },
+          }
+        );
+
+        const status = response.data.status || response.data;
+        console.log('FULL STREAK STATUS:', status);
+        console.log('CLAIMS ARRAY:', status.claims);
+        console.log(
+          'CLAIMED DAYS:',
+          (status.claims ?? []).map((claim) => claim.day)
+        );
+
+        setStreakStatus(status);
+
+        const lastClaimDate = status.lastClaimDate
+          ? new Date(status.lastClaimDate)
+          : null;
+
+        const dateKey = (date) =>
+          new Intl.DateTimeFormat('en-CA', {
+            timeZone: 'Asia/Kolkata',
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+          }).format(date);
+
+        const claimedToday =
+          lastClaimDate &&
+          !Number.isNaN(lastClaimDate.getTime()) &&
+          dateKey(lastClaimDate) === dateKey(new Date());
+
+        setClaimed(Boolean(claimedToday));
+      } catch (err) {
+        console.error('Failed to fetch streak status:', err);
+
+        if (err.response?.status === 401) {
+          localStorage.removeItem('velop_token');
+          setToken('');
+          setClaimed(false);
+          setStreakStatus(null);
+          setClaimMessage('Session expired. Please log in again.');
+        }
+      } finally {
+        setStatusLoading(false);
+      }
+    },
+    [token]
+  );
+
+  // Login.
   async function handleLogin(event) {
     event.preventDefault();
     setLoginLoading(true);
@@ -106,118 +215,78 @@ async function handleClaim() {
 
       localStorage.setItem('velop_token', receivedToken);
       setToken(receivedToken);
-      await fetchWalletBalance(receivedToken);
       setPassword('');
+
+      await Promise.all([
+        fetchWalletBalance(receivedToken),
+        fetchStreakStatus(receivedToken),
+      ]);
     } catch (err) {
       setLoginError(
         err.response?.data?.message ||
-          err.message ||
-          'Login failed. Please try again.'
+        err.message ||
+        'Login failed. Please try again.'
       );
     } finally {
       setLoginLoading(false);
     }
   }
-  
-async function fetchWalletBalance(authToken = token) {
-  try {
-    const response = await axios.get(`${API_URL}/wallet`, {
-      headers: {
-        Authorization: `Bearer ${authToken}`,
-      },
-    });
 
-    setWalletBalance(response.data.balance ?? 0);
-  } catch (err) {
-    console.error('Failed to fetch wallet balance:', err);
-  }
-}
+  async function handleRegister(event) {
+    event.preventDefault();
+    setRegisterError('');
+    setRegisterSuccess('');
 
-  function handleLogout() {
-    localStorage.removeItem('velop_token');
-    setToken('');
-    setPassword('');
-    setLoginError('');
-    setClaimed(false);
-  }
-
-  useEffect(() => {
-    let cancelled = false;
-
-    async function fetchRewards() {
-      setLoading(true);
-      setError('');
-
-      try {
-        const response = await axios.get(
-          `${API_URL}/daily-streak`
-        );
-          console.log('API URL:', API_URL);
-          console.log('Rewards API response:', response.data);
-        const apiRewards = (response.data.rewards || []).map(
-          (reward) => ({
-            day: reward.day,
-            amount:
-              reward.rewardType === 'VES'
-                ? `+${reward.amount}`
-                : `₹${reward.amount}`,
-            type:
-              reward.rewardType === 'VES'
-                ? 'VEs'
-                : `${reward.provider || 'Amazon'} Gift Card`,
-            image: rewardImages[reward.day],
-          })
-        );
-
-        if (!cancelled) {
-          setRewards(apiRewards);
-        }
-      } catch (err) {
-        console.error('Failed to fetch rewards:', err);
-
-        if (!cancelled) {
-          setError(
-            'Rewards load nahi ho paaye. Please check your backend.'
-          );
-        }
-      } finally {
-        if (!cancelled) {
-          setLoading(false);
-        }
-      }
-    }
-
-    fetchRewards();
-
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
-useEffect(() => {
-  if (token) {
-    fetchWalletBalance(token);
-  } else {
-    setWalletBalance(0);
-  }
-}, [token]);
-
-  
-useEffect(() => {
-  let cancelled = false;
-
-  async function fetchStreakStatus() {
-    if (!token) {
-      setClaimed(false);
-      setStreakStatus(null);
+    if (password.length < 8) {
+      setRegisterError('Password must be at least 8 characters.');
       return;
     }
 
-    setStatusLoading(true);
+    if (password !== confirmPassword) {
+      setRegisterError('Passwords do not match.');
+      return;
+    }
+
+    setRegisterLoading(true);
 
     try {
-      const response = await axios.get(
-        `${API_URL}/daily-streak/status`,
+      const response = await axios.post(`${API_URL}/auth/register`, {
+        name: name.trim(),
+        email: email.trim().toLowerCase(),
+        password,
+      });
+
+      if (response.data.success) {
+        setRegisterSuccess('Account created! Please log in.');
+        setIsRegister(false);
+        setName('');
+        setConfirmPassword('');
+        setPassword('');
+        setEmail(email.trim().toLowerCase());
+        setRegisterError('');
+      }
+    } catch (err) {
+      setRegisterError(
+        err.response?.data?.message ||
+        'Registration failed. Please try again.'
+      );
+    } finally {
+      setRegisterLoading(false);
+    }
+  }
+
+  // Claim today's reward.
+
+  async function handleClaim() {
+    if (!token || claimLoading || statusLoading) return;
+
+    setClaimLoading(true);
+    setClaimMessage('');
+
+    try {
+      const response = await axios.post(
+        `${API_URL}/daily-streak/claim`,
+        {},
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -225,51 +294,182 @@ useEffect(() => {
         }
       );
 
-      const status = response.data.status || response.data;
+      if (response.data.success) {
+        setClaimMessage(
+          response.data.message || 'Reward claimed successfully!'
+        );
 
-      if (cancelled) return;
-
-      setStreakStatus(status);
-
-      // Compare the last claim date using India time.
-      const lastClaimDate = status.lastClaimDate
-        ? new Date(status.lastClaimDate)
-        : null;
-
-      const dateKey = (date) =>
-        new Intl.DateTimeFormat('en-CA', {
-          timeZone: 'Asia/Kolkata',
-          year: 'numeric',
-          month: '2-digit',
-          day: '2-digit',
-        }).format(date);
-
-      const claimedToday =
-        lastClaimDate &&
-        !Number.isNaN(lastClaimDate.getTime()) &&
-        dateKey(lastClaimDate) === dateKey(new Date());
-
-      setClaimed(Boolean(claimedToday));
+        await Promise.all([
+          fetchWalletBalance(token),
+          fetchStreakStatus(token),
+        ]);
+      }
     } catch (err) {
-      console.error('Failed to fetch streak status:', err);
+      const statusCode = err.response?.status;
+      const message = err.response?.data?.message;
 
-      if (!cancelled && err.response?.status === 401) {
-        localStorage.removeItem('velop_token');
-        setToken('');
+
+
+      if (statusCode === 409) {
+        setClaimMessage(
+          message || "You have already claimed today's reward"
+        );
+
+        const status = await fetchStreakStatus(token);
+        await fetchWalletBalance(token);
+
+        const claimedDays = new Set(
+          (status?.claims ?? []).map((claim) => Number(claim.day))
+        );
+
+        const todayRewardDay = Number(status?.currentDay ?? 0) + 1;
+
+        if (claimedDays.has(todayRewardDay)) {
+          setStreakStatus(status);
+          setClaimed(true);
+        }
+
+        return;
       }
+
+
+
+      setClaimMessage(
+        message || 'Reward claim nahi hua. Please try again.'
+      );
     } finally {
-      if (!cancelled) {
-        setStatusLoading(false);
-      }
+      setClaimLoading(false);
     }
   }
 
-  fetchStreakStatus();
 
-  return () => {
-    cancelled = true;
-  };
-}, [token]);
+
+  function handleLogout() {
+    localStorage.removeItem('velop_token');
+
+    setToken('');
+    setPassword('');
+    setLoginError('');
+    setClaimed(false);
+    setStreakStatus(null);
+    setWalletBalance(0);
+    setClaimMessage('');
+    setStatusLoading(false);
+  }
+
+  // Fetch streak status whenever the authentication token changes.
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadStreakStatus() {
+      if (!token) {
+        setClaimed(false);
+        setStreakStatus(null);
+        setStatusLoading(false);
+        return;
+      }
+
+      setStatusLoading(true);
+
+      try {
+        const response = await axios.get(
+          `${API_URL}/daily-streak/status`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+            params: {
+              _refresh: Date.now(),
+            },
+          }
+        );
+
+        if (cancelled) return;
+
+        const status = response.data.status || response.data;
+        setStreakStatus(status);
+
+        const lastClaimDate = status.lastClaimDate
+          ? new Date(status.lastClaimDate)
+          : null;
+
+        const dateKey = (date) =>
+          new Intl.DateTimeFormat('en-CA', {
+            timeZone: 'Asia/Kolkata',
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+          }).format(date);
+
+        const claimedToday =
+          lastClaimDate &&
+          !Number.isNaN(lastClaimDate.getTime()) &&
+          dateKey(lastClaimDate) === dateKey(new Date());
+
+        setClaimed(Boolean(claimedToday));
+      } catch (err) {
+        if (cancelled) return;
+
+        console.error('Failed to fetch streak status:', err);
+
+        if (err.response?.status === 401) {
+          localStorage.removeItem('velop_token');
+          setToken('');
+          setClaimed(false);
+          setStreakStatus(null);
+        }
+      } finally {
+        if (!cancelled) {
+          setStatusLoading(false);
+        }
+      }
+    }
+
+    loadStreakStatus();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [token]);
+
+  // Fetch wallet balance whenever the token changes.
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadWalletBalance() {
+      if (!token) {
+        setWalletBalance(0);
+        return;
+      }
+
+      try {
+        const response = await axios.get(`${API_URL}/wallet`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (!cancelled) {
+          setWalletBalance(response.data.balance ?? 0);
+        }
+      } catch (err) {
+        if (!cancelled) {
+          console.error('Failed to fetch wallet balance:', err);
+        }
+      }
+    }
+
+    loadWalletBalance();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [token]);
+
+
+  useEffect(() => {
+    setLoading(false);
+  }, []);
 
   if (loading) {
     return (
@@ -292,41 +492,31 @@ useEffect(() => {
 
   return (
     <div className="streak-app">
+
       {!token && (
-        <div className="login-panel">
-          <h2>Login to VELoop Rewards</h2>
-          <p>Login to access your daily streak and rewards.</p>
-
-          <form onSubmit={handleLogin}>
-            <input
-              type="email"
-              placeholder="Email address"
-              value={email}
-              onChange={(event) => setEmail(event.target.value)}
-              autoComplete="email"
-              required
-            />
-
-            <input
-              type="password"
-              placeholder="Password"
-              value={password}
-              onChange={(event) => setPassword(event.target.value)}
-              autoComplete="current-password"
-              required
-            />
-
-            <button type="submit" disabled={loginLoading}>
-              {loginLoading ? 'Logging in...' : 'Login'}
-            </button>
-          </form>
-
-          {loginError && (
-            <p className="login-error" role="alert">
-              {loginError}
-            </p>
-          )}
-        </div>
+        <AuthPanel
+          isRegister={isRegister}
+          name={name}
+          setName={setName}
+          email={email}
+          setEmail={setEmail}
+          password={password}
+          setPassword={setPassword}
+          confirmPassword={confirmPassword}
+          setConfirmPassword={setConfirmPassword}
+          onSubmit={isRegister ? handleRegister : handleLogin}
+          loading={isRegister ? registerLoading : loginLoading}
+          error={isRegister ? registerError : loginError}
+          success={registerSuccess}
+          onToggle={() => {
+            setIsRegister((current) => !current);
+            setLoginError('');
+            setRegisterError('');
+            setRegisterSuccess('');
+            setPassword('');
+            setConfirmPassword('');
+          }}
+        />
       )}
 
       {token && (
@@ -344,7 +534,7 @@ useEffect(() => {
                   alt=""
                   className="balance-coin"
                 />
-               {walletBalance} VEs
+                {walletBalance} VEs
               </span>
 
               <div className="avatar">A</div>
@@ -395,7 +585,7 @@ useEffect(() => {
                         alt=""
                         className="inline-icon"
                       />{' '}
-                      1 Day
+                      {streakStatus?.currentDay ?? 0} Days
                     </strong>
                     <span>Current Streak</span>
                   </div>
@@ -466,11 +656,20 @@ useEffect(() => {
                 <div>
                   <span>Next Reward</span>
                   <strong>
-                    {rewards.find((reward) => reward.day === 2)
-                      ?.amount || '+10'}
-                    {' '}
-                    {rewards.find((reward) => reward.day === 2)
-                      ?.type || 'VEs'}
+
+                    {(() => {
+                      const nextReward = rewards.find(
+                        (reward) =>
+                          Number(reward.day) ===
+                          Number(streakStatus?.currentDay ?? 0) + 1
+                      );
+
+                      return nextReward
+                        ? `${nextReward.amount ?? nextReward.rewardAmount ?? ''} ${nextReward.type ?? nextReward.rewardType ?? 'VEs'
+                        }`
+                        : 'Cycle Complete';
+                    })()}
+
                   </strong>
                 </div>
               </div>
@@ -489,23 +688,30 @@ useEffect(() => {
                 </div>
 
                 <span className="progress-pill">
-                  {streakStatus?.currentDay ?? 0} / 7 DAYS
+                  {streakStatus?.claims?.length ?? 0} / 7 DAYS
                 </span>
               </div>
 
               <div className="rewards-grid">
-  {rewards.map((reward) => {
-                  
-const currentDay = streakStatus?.currentDay ?? 0;
-const isClaimed = reward.day <= currentDay;
-const isToday = reward.day === currentDay + 1;
+                {rewards.map((reward) => {
+
+                  const currentDay = Number(streakStatus?.currentDay ?? 0);
+
+                  const claimedDays = new Set(
+                    (streakStatus?.claims ?? []).map(
+                      (claim) => Number(claim.day)
+                    )
+                  );
+
+                  const isClaimed = claimedDays.has(Number(reward.day));
+                  const isToday = Number(reward.day) === currentDay + 1;
+
 
 
                   return (
                     <article
-                      className={`reward-card ${
-                        isToday ? 'is-today' : ''
-                      } ${isClaimed ? 'is-claimed' : ''}`}
+                      className={`reward-card ${isToday ? 'is-today' : ''
+                        } ${isClaimed ? 'is-claimed' : ''}`}
                       key={reward.day}
                     >
                       <div className="day-label">
@@ -516,15 +722,17 @@ const isToday = reward.day === currentDay + 1;
                         )}
 
                         {isToday && (
-                          <span className="today-tag">
-                            TODAY
-                          </span>
+                          <span className="today-tag">TODAY</span>
                         )}
                       </div>
 
                       <div className="reward-art">
                         <img
-                          src={reward.image}
+                          src={
+                            reward.image ||
+                            rewardImages[reward.day] ||
+                            vesCoin
+                          }
                           alt={`Day ${reward.day} reward`}
                           className="reward-image"
                           loading="lazy"
@@ -539,33 +747,42 @@ const isToday = reward.day === currentDay + 1;
                         {reward.type}
                       </span>
 
+
+
                       <button
-  className={`reward-button ${isToday ? 'claim-button' : ''}`}
- disabled={!isToday || claimLoading || statusLoading}
-  onClick={handleClaim}
->
-  {claimLoading
-    ? 'Claiming...'
-    : isClaimed
-      ? '✓ Claimed'
-      : isToday
-        ? 'Claim Reward'
-        : '🔒 Locked'}
-</button>
+                        className={`reward-button ${isToday && streakStatus?.canClaimToday && !isClaimed
+                          ? 'claim-button'
+                          : ''
+                          }`}
+                        disabled={
+                          !isToday ||
+                          !streakStatus?.canClaimToday ||
+                          claimLoading ||
+                          statusLoading ||
+                          isClaimed
+                        }
+                        onClick={handleClaim}
+                      >
+                        {isClaimed
+                          ? '✓ Claimed'
+                          : claimLoading
+                            ? 'Claiming...'
+                            : isToday && streakStatus?.canClaimToday
+                              ? 'Claim Reward'
+                              : '🔒 Locked'}
+                      </button>
+
+
                     </article>
                   );
                 })}
               </div>
-                {claimMessage && (
-  <p role="status" className="claim-message">
-    {claimMessage}
-  </p>
-)}
-              <p className="demo-note">
-                Reward claims are still in demo mode. Backend
-                integration for claim status and wallet balance
-                is the next step.
-              </p>
+
+              {claimMessage && (
+                <p role="status" className="claim-message">
+                  {claimMessage}
+                </p>
+              )}
             </section>
 
             <section className="why-section">

@@ -253,7 +253,7 @@
 
 .section-heading {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
   gap: 15px;
   margin-bottom: 23px;
@@ -303,6 +303,7 @@
 .reward-card:hover {
   transform: translateY(-3px);
   border-color: #6b4c88;
+  background: #25182c;
 }
 
 .reward-card.is-today {
@@ -893,4 +894,19 @@
 
 .login-panel p {
   color: #62576f;
+}
+
+
+.auth-switch-button {
+  background: transparent;
+  color: #6024bd;
+  border: none;
+  padding: 0;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.auth-switch-button:hover {
+  text-decoration: underline;
 }

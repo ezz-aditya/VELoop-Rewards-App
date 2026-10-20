@@ -76,6 +76,19 @@ const StreakClaim = require('../models/StreakClaim');
 router.get('/daily-streak/status', authMiddleware, async (req, res) => {
   try {
     const userId = req.user.userId;
+    const config = await StreakConfig.findOne({
+  isActive: true
+}).lean();
+
+if (!config) {
+  return res.status(500).json({
+    success: false,
+    message: 'Streak configuration not found'
+  });
+}
+
+const timezone = config.timezone;
+const todayKey = getDateKey(new Date(), timezone);
 
     const cycle = await StreakCycle.findOne({
       user: userId,
@@ -86,15 +99,21 @@ router.get('/daily-streak/status', authMiddleware, async (req, res) => {
 
     const claims = cycle
       ? await StreakClaim.find({ cycle: cycle._id })
-          .sort({ day: 1 })
-          .lean()
+        .sort({ day: 1 })
+        .lean()
       : [];
+      const lastKey = cycle?.lastClaimDate
+  ? getDateKey(cycle.lastClaimDate, timezone)
+  : null;
+
+const canClaimToday = !lastKey || lastKey !== todayKey;
 
     return res.status(200).json({
       success: true,
       message: 'Streak status fetched successfully',
       status: {
         currentDay: cycle ? cycle.currentDay : 0,
+        canClaimToday,
         cycleNumber: cycle ? cycle.cycleNumber : 0,
         cycleStatus: cycle ? cycle.status : 'not_started',
         lastClaimDate: cycle ? cycle.lastClaimDate : null,
@@ -145,11 +164,13 @@ router.post('/daily-streak/claim', authMiddleware, async (req, res) => {
     const now = new Date();
     let result;
 
+    console.log("CLAIM: route entered");
     await session.withTransaction(async () => {
+      console.log("CLAIM: transaction started");
       const config = await StreakConfig.findOne({
         isActive: true
       }).session(session);
-
+      console.log("CLAIM: config fetched", config?.timezone);
       if (!config) {
         throw new Error('STREAK_CONFIG_NOT_FOUND');
       }
@@ -158,13 +179,25 @@ router.post('/daily-streak/claim', authMiddleware, async (req, res) => {
       const cycleLength = config.cycleLength;
       const todayKey = getDateKey(now, timezone);
       const yesterdayKey = getPreviousDateKey(todayKey);
+      console.log("CLAIM: date keys", {
+        todayKey,
+        yesterdayKey,
+      });
 
+      console.log("CLAIM: looking for active cycle");
       let cycle = await StreakCycle.findOne({
         user: userId,
         status: 'active'
       })
         .sort({ cycleNumber: -1 })
         .session(session);
+      console.log("CLAIM: active cycle", cycle ? {
+        id: cycle._id,
+        cycleNumber: cycle.cycleNumber,
+        currentDay: cycle.currentDay,
+        lastClaimDate: cycle.lastClaimDate,
+        status: cycle.status,
+      } : null);
 
       let day;
 
@@ -173,6 +206,13 @@ router.post('/daily-streak/claim', authMiddleware, async (req, res) => {
           cycle.lastClaimDate,
           timezone
         );
+        console.log("CLAIM: date comparison", {
+          todayKey,
+          yesterdayKey,
+          lastKey,
+          timezone,
+          alreadyClaimedToday: lastKey === todayKey,
+        });
 
         if (lastKey === todayKey) {
           throw new Error('ALREADY_CLAIMED_TODAY');
@@ -315,9 +355,14 @@ router.post('/daily-streak/claim', authMiddleware, async (req, res) => {
         message: 'You have already claimed today’s reward'
       });
     }
-
+    console.error('CLAIM ERROR DETAILS:', {
+      message: error.message,
+      code: error.code,
+      keyPattern: error.keyPattern,
+      keyValue: error.keyValue,
+    });
     if (error.message === 'DUPLICATE_CLAIM' ||
-        error.code === 11000) {
+      error.code === 11000) {
       return res.status(409).json({
         success: false,
         message: 'This reward has already been claimed'
