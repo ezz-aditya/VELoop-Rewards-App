@@ -800,7 +800,9 @@ function App() {
                   );
 
                   const isClaimed = claimedDays.has(Number(reward.day));
-                  const isToday = Number(reward.day) === currentDay + 1;
+                  const isToday =
+                    Number(reward.day) === currentDay + 1 &&
+                    streakStatus?.canClaimToday === true;
 
 
 
