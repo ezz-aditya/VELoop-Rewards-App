@@ -22,6 +22,8 @@ const API_URL = import.meta.env.VITE_API_URL;
 
 
 
+
+
 const rewardImages = {
   1: vesCoin,
   2: vesCoin,
@@ -41,14 +43,14 @@ function App() {
   const [password, setPassword] = useState('');
   const [loginLoading, setLoginLoading] = useState(false);
   const [loginError, setLoginError] = useState('');
-
+  const [showCpaDemo, setShowCpaDemo] = useState(false);
   const [isRegister, setIsRegister] = useState(false);
   const [name, setName] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [registerLoading, setRegisterLoading] = useState(false);
   const [registerError, setRegisterError] = useState('');
   const [registerSuccess, setRegisterSuccess] = useState('');
-
+  const [userName, setUserName] = useState('');
 
   const [rewards, setRewards] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -60,6 +62,59 @@ function App() {
   const [statusLoading, setStatusLoading] = useState(false);
   const [claimLoading, setClaimLoading] = useState(false);
   const [claimMessage, setClaimMessage] = useState('');
+  const [countdown, setCountdown] = useState('');
+
+
+  useEffect(() => {
+    const nextClaimAt = streakStatus?.nextClaimAt;
+    const serverTime = streakStatus?.serverTime;
+
+    if (!nextClaimAt || !serverTime) {
+      setCountdown('');
+      return;
+    }
+
+    const nextClaimMs = new Date(nextClaimAt).getTime();
+    const serverTimeMs = new Date(serverTime).getTime();
+    const receivedAt = Date.now();
+
+    const updateCountdown = () => {
+      // Estimate current server time using the server timestamp
+      // and elapsed time since the response was received.
+      const estimatedServerNow = serverTimeMs + (Date.now() - receivedAt);
+      const remainingMs = nextClaimMs - estimatedServerNow;
+      console.log('TIMER VALUES:', {
+        nextClaimAt,
+        serverTime,
+        nextClaimMs,
+        serverTimeMs,
+        remainingMs,
+      });
+
+      if (remainingMs <= 0) {
+        setCountdown('00:00:00');
+        return;
+      }
+
+      const totalSeconds = Math.ceil(remainingMs / 1000);
+      const hours = Math.floor(totalSeconds / 3600);
+      const minutes = Math.floor((totalSeconds % 3600) / 60);
+      const seconds = totalSeconds % 60;
+
+      setCountdown(
+        `${String(hours).padStart(2, '0')}:` +
+        `${String(minutes).padStart(2, '0')}:` +
+        `${String(seconds).padStart(2, '0')}`
+      );
+    };
+
+    updateCountdown();
+    const intervalId = setInterval(updateCountdown, 1000);
+
+    return () => clearInterval(intervalId);
+  }, [streakStatus]);
+
+
   useEffect(() => {
     let cancelled = false;
 
@@ -158,7 +213,17 @@ function App() {
           (status.claims ?? []).map((claim) => claim.day)
         );
 
-        setStreakStatus(status);
+        setStreakStatus({
+          ...status,
+          serverTime: status.serverTime,
+          nextClaimAt: status.nextClaimAt,
+          cooldownComplete: status.cooldownComplete,
+        });
+        console.log('COUNTDOWN DEBUG:', {
+          serverTime: status.serverTime,
+          nextClaimAt: status.nextClaimAt,
+          cooldownComplete: status.cooldownComplete,
+        });
 
         const lastClaimDate = status.lastClaimDate
           ? new Date(status.lastClaimDate)
@@ -208,6 +273,11 @@ function App() {
       });
 
       const receivedToken = response.data.token;
+      const receivedName =
+        response.data.user?.name ||
+        response.data.name ||
+        '';
+
 
       if (!receivedToken) {
         throw new Error('Login response did not contain a token.');
@@ -215,6 +285,7 @@ function App() {
 
       localStorage.setItem('velop_token', receivedToken);
       setToken(receivedToken);
+      setUserName(receivedName);
       setPassword('');
 
       await Promise.all([
@@ -275,9 +346,8 @@ function App() {
     }
   }
 
-  // Claim today's reward.
 
-  async function handleClaim() {
+  async function processRewardClaim() {
     if (!token || claimLoading || statusLoading) return;
 
     setClaimLoading(true);
@@ -299,6 +369,8 @@ function App() {
           response.data.message || 'Reward claimed successfully!'
         );
 
+        setShowCpaDemo(false);
+
         await Promise.all([
           fetchWalletBalance(token),
           fetchStreakStatus(token),
@@ -308,38 +380,27 @@ function App() {
       const statusCode = err.response?.status;
       const message = err.response?.data?.message;
 
-
-
-      if (statusCode === 409) {
-        setClaimMessage(
-          message || "You have already claimed today's reward"
-        );
-
-        const status = await fetchStreakStatus(token);
-        await fetchWalletBalance(token);
-
-        const claimedDays = new Set(
-          (status?.claims ?? []).map((claim) => Number(claim.day))
-        );
-
-        const todayRewardDay = Number(status?.currentDay ?? 0) + 1;
-
-        if (claimedDays.has(todayRewardDay)) {
-          setStreakStatus(status);
-          setClaimed(true);
-        }
-
-        return;
-      }
-
-
-
       setClaimMessage(
         message || 'Reward claim nahi hua. Please try again.'
       );
+
+      if (statusCode === 409) {
+        await Promise.all([
+          fetchWalletBalance(token),
+          fetchStreakStatus(token),
+        ]);
+      }
     } finally {
       setClaimLoading(false);
     }
+  }
+
+  // Open CPA demo before claiming today's reward.
+  function handleClaim() {
+    if (!token || claimLoading || statusLoading) return;
+
+    setClaimMessage('');
+    setShowCpaDemo(true);
   }
 
 
@@ -537,7 +598,9 @@ function App() {
                 {walletBalance} VEs
               </span>
 
-              <div className="avatar">A</div>
+              <div className="avatar">
+                {userName.trim().charAt(0).toUpperCase() || 'U'}
+              </div>
 
               <button
                 type="button"
@@ -654,9 +717,10 @@ function App() {
                   />
                 </span>
                 <div>
-                  <span>Next Reward</span>
-                  <strong>
 
+                  <span>Next Reward</span>
+
+                  <strong>
                     {(() => {
                       const nextReward = rewards.find(
                         (reward) =>
@@ -664,13 +728,40 @@ function App() {
                           Number(streakStatus?.currentDay ?? 0) + 1
                       );
 
-                      return nextReward
-                        ? `${nextReward.amount ?? nextReward.rewardAmount ?? ''} ${nextReward.type ?? nextReward.rewardType ?? 'VEs'
-                        }`
-                        : 'Cycle Complete';
-                    })()}
+                      if (!nextReward) return 'Cycle Complete';
 
+                      const amount =
+                        nextReward.amount ?? nextReward.rewardAmount ?? '';
+
+                      const type =
+                        nextReward.type ?? nextReward.rewardType ?? 'VES';
+
+                      if (
+                        String(type).toUpperCase().includes('GIFT') ||
+                        String(nextReward.provider ?? '').toLowerCase().includes('amazon')
+                      ) {
+                        return `₹${amount} Amazon Gift Card`;
+                      }
+
+                      return `${amount} VES`;
+                    })()}
                   </strong>
+
+                  {countdown && (
+                    <small
+                      style={{
+                        display: 'block',
+                        marginTop: '6px',
+                        color: '#f5c85b',
+                      }}
+                    >
+                      Unlocks in {countdown}
+                    </small>
+                  )}
+
+
+
+
                 </div>
               </div>
             </section>
@@ -823,12 +914,105 @@ function App() {
             <footer className="footer">
               <span>© 2026 VELoop Rewards</span>
               <span>Daily consistency. Bigger rewards.</span>
+
             </footer>
           </main>
+
+          {/* CPA Demo Modal */}
+          {showCpaDemo && (
+            <div
+              style={{
+                position: 'fixed',
+                inset: 0,
+                background: 'rgba(0, 0, 0, 0.75)',
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                zIndex: 9999,
+                padding: '20px',
+              }}
+            >
+              <div
+                style={{
+                  width: '100%',
+                  maxWidth: '420px',
+                  background: '#171923',
+                  border: '1px solid #343849',
+                  borderRadius: '18px',
+                  padding: '28px',
+                  color: '#fff',
+                  textAlign: 'center',
+                }}
+              >
+                <div style={{ fontSize: '38px', marginBottom: '12px' }}>
+                  🎁
+                </div>
+
+                <h2 style={{ marginBottom: '10px' }}>
+                  Reward Verification
+                </h2>
+
+                <p style={{ color: '#b8bdcc', lineHeight: 1.6 }}>
+                  Complete this demo verification step to continue with your
+                  daily streak reward claim.
+                </p>
+
+                <div
+                  style={{
+                    background: '#222637',
+                    borderRadius: '10px',
+                    padding: '12px',
+                    margin: '18px 0',
+                    color: '#f5c85b',
+                    fontSize: '13px',
+                  }}
+                >
+                  Demo only — no real advertisement or CPA network is connected.
+                </div>
+
+                <button
+                  onClick={processRewardClaim}
+                  disabled={claimLoading}
+                  style={{
+                    width: '100%',
+                    padding: '12px',
+                    border: 'none',
+                    borderRadius: '10px',
+                    background: '#f5c85b',
+                    color: '#171923',
+                    fontWeight: 'bold',
+                    cursor: claimLoading ? 'not-allowed' : 'pointer',
+                    opacity: claimLoading ? 0.6 : 1,
+                  }}
+                >
+                  {claimLoading ? 'Verifying...' : 'Continue Demo Verification'}
+                </button>
+
+                <button
+                  onClick={() => setShowCpaDemo(false)}
+                  disabled={claimLoading}
+                  style={{
+                    width: '100%',
+                    marginTop: '10px',
+                    padding: '11px',
+                    border: '1px solid #45495b',
+                    borderRadius: '10px',
+                    background: 'transparent',
+                    color: '#fff',
+                    cursor: claimLoading ? 'not-allowed' : 'pointer',
+                  }}
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          )}
+
         </>
       )}
     </div>
   );
 }
+
 
 export default App;

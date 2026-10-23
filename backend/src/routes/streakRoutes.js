@@ -1,53 +1,28 @@
+
 const authMiddleware = require('../middleware/authMiddleware');
 const express = require('express');
 const router = express.Router();
 const mongoose = require('mongoose');
+
 const Wallet = require('../models/Wallet');
 const WalletTransaction = require('../models/WalletTransaction');
-function getIndiaDateString(date = new Date()) {
-  const parts = new Intl.DateTimeFormat('en-CA', {
-    timeZone: 'Asia/Kolkata',
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit'
-  }).formatToParts(date);
-
-  const values = {};
-
-  for (const part of parts) {
-    if (part.type !== 'literal') {
-      values[part.type] = part.value;
-    }
-  }
-
-  return `${values.year}-${values.month}-${values.day}`;
-}
-
-function getYesterdayDateString() {
-  const today = getIndiaDateString();
-  const date = new Date(`${today}T00:00:00Z`);
-
-  date.setUTCDate(date.getUTCDate() - 1);
-
-  return date.toISOString().slice(0, 10);
-}
 const StreakReward = require('../models/StreakReward');
 const StreakConfig = require('../models/StreakConfig');
+const StreakCycle = require('../models/StreakCycle');
+const StreakClaim = require('../models/StreakClaim');
 
 // GET /api/daily-streak
 router.get('/daily-streak', async (req, res) => {
   try {
     const [config, rewards] = await Promise.all([
       StreakConfig.findOne({ isActive: true }).lean(),
-      StreakReward.find({ isActive: true })
-        .sort({ day: 1 })
-        .lean()
+      StreakReward.find({ isActive: true }).sort({ day: 1 }).lean(),
     ]);
 
     if (!config) {
       return res.status(404).json({
         success: false,
-        message: 'Streak configuration not found'
+        message: 'Streak configuration not found',
       });
     }
 
@@ -55,170 +30,167 @@ router.get('/daily-streak', async (req, res) => {
       success: true,
       config: {
         cycleLength: config.cycleLength,
-        timezone: config.timezone
+        timezone: config.timezone,
       },
-      rewards
+      rewards,
     });
   } catch (error) {
-    console.error('Daily streak API error:', error.message);
+    console.error('Daily streak API error:', error);
 
     return res.status(500).json({
       success: false,
-      message: 'Failed to fetch daily streak rewards'
+      message: 'Failed to fetch daily streak rewards',
     });
   }
 });
-
-const StreakCycle = require('../models/StreakCycle');
-const StreakClaim = require('../models/StreakClaim');
 
 // GET /api/daily-streak/status
 router.get('/daily-streak/status', authMiddleware, async (req, res) => {
   try {
     const userId = req.user.userId;
+    const serverTime = new Date();
+
     const config = await StreakConfig.findOne({
-  isActive: true
-}).lean();
+      isActive: true,
+    }).lean();
 
-if (!config) {
-  return res.status(500).json({
-    success: false,
-    message: 'Streak configuration not found'
-  });
-}
+    if (!config) {
+      return res.status(500).json({
+        success: false,
+        message: 'Streak configuration not found',
+      });
+    }
 
-const timezone = config.timezone;
-const todayKey = getDateKey(new Date(), timezone);
-
-    const cycle = await StreakCycle.findOne({
+    let cycle = await StreakCycle.findOne({
       user: userId,
-      status: 'active'
-    })
-      .sort({ cycleNumber: -1 })
-      .lean();
+      status: 'active',
+    }).sort({ cycleNumber: -1 });
+
+    // Break the streak after 48 hours without a claim.
+    if (cycle?.lastClaimDate) {
+      const streakDeadline = new Date(
+        cycle.lastClaimDate.getTime() + 48 * 60 * 60 * 1000
+      );
+
+      if (serverTime >= streakDeadline) {
+        cycle.status = 'broken';
+        await cycle.save();
+        cycle = null;
+      }
+    }
 
     const claims = cycle
       ? await StreakClaim.find({ cycle: cycle._id })
-        .sort({ day: 1 })
-        .lean()
+          .sort({ day: 1 })
+          .lean()
       : [];
-      const lastKey = cycle?.lastClaimDate
-  ? getDateKey(cycle.lastClaimDate, timezone)
-  : null;
 
-const canClaimToday = !lastKey || lastKey !== todayKey;
+    const lastClaimDate = cycle?.lastClaimDate
+      ? new Date(cycle.lastClaimDate)
+      : null;
+
+    const nextClaimAt = lastClaimDate
+      ? new Date(lastClaimDate.getTime() + 24 * 60 * 60 * 1000)
+      : null;
+
+    const cooldownComplete =
+      !nextClaimAt || serverTime >= nextClaimAt;
 
     return res.status(200).json({
       success: true,
       message: 'Streak status fetched successfully',
       status: {
         currentDay: cycle ? cycle.currentDay : 0,
-        canClaimToday,
+        canClaimToday: cooldownComplete,
+        cooldownComplete,
+        serverTime: serverTime.toISOString(),
+        nextClaimAt: nextClaimAt?.toISOString() ?? null,
         cycleNumber: cycle ? cycle.cycleNumber : 0,
         cycleStatus: cycle ? cycle.status : 'not_started',
         lastClaimDate: cycle ? cycle.lastClaimDate : null,
-        claims
-      }
+        claims,
+      },
     });
   } catch (error) {
-    console.error('Streak status error:', error.message);
+    console.error('Streak status error:', error);
 
     return res.status(500).json({
       success: false,
-      message: 'Failed to fetch streak status'
+      message: 'Failed to fetch streak status',
     });
   }
 });
 
-function getDateKey(date, timezone) {
-  const parts = new Intl.DateTimeFormat('en-CA', {
-    timeZone: timezone,
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit'
-  }).formatToParts(date);
-
-  const values = {};
-
-  for (const part of parts) {
-    if (part.type !== 'literal') {
-      values[part.type] = part.value;
-    }
-  }
-
-  return `${values.year}-${values.month}-${values.day}`;
-}
-
-function getPreviousDateKey(dateKey) {
-  const date = new Date(`${dateKey}T00:00:00Z`);
-  date.setUTCDate(date.getUTCDate() - 1);
-  return date.toISOString().slice(0, 10);
-}
-
-
+// POST /api/daily-streak/claim
 router.post('/daily-streak/claim', authMiddleware, async (req, res) => {
-  const session = await mongoose.startSession();
+  let session;
 
   try {
+    session = await mongoose.startSession();
+
     const userId = req.user.userId;
     const now = new Date();
     let result;
 
-    console.log("CLAIM: route entered");
+    console.log('CLAIM: route entered');
+
     await session.withTransaction(async () => {
-      console.log("CLAIM: transaction started");
+      console.log('CLAIM: transaction started');
+
       const config = await StreakConfig.findOne({
-        isActive: true
-      }).session(session);
-      console.log("CLAIM: config fetched", config?.timezone);
+        isActive: true,
+      })
+        .session(session)
+        .lean();
+
+      console.log('CLAIM: config fetched', config?.timezone);
+
       if (!config) {
         throw new Error('STREAK_CONFIG_NOT_FOUND');
       }
 
-      const timezone = config.timezone;
-      const cycleLength = config.cycleLength;
-      const todayKey = getDateKey(now, timezone);
-      const yesterdayKey = getPreviousDateKey(todayKey);
-      console.log("CLAIM: date keys", {
-        todayKey,
-        yesterdayKey,
-      });
+      // FIX: Define cycleLength before using it.
+      const cycleLength = Number(config.cycleLength);
 
-      console.log("CLAIM: looking for active cycle");
+      if (!Number.isInteger(cycleLength) || cycleLength < 1) {
+        throw new Error('INVALID_STREAK_CYCLE_LENGTH');
+      }
+
       let cycle = await StreakCycle.findOne({
         user: userId,
-        status: 'active'
+        status: 'active',
       })
         .sort({ cycleNumber: -1 })
         .session(session);
-      console.log("CLAIM: active cycle", cycle ? {
-        id: cycle._id,
-        cycleNumber: cycle.cycleNumber,
-        currentDay: cycle.currentDay,
-        lastClaimDate: cycle.lastClaimDate,
-        status: cycle.status,
-      } : null);
 
-      let day;
+      console.log(
+        'CLAIM: active cycle',
+        cycle
+          ? {
+              id: cycle._id,
+              cycleNumber: cycle.cycleNumber,
+              currentDay: cycle.currentDay,
+              lastClaimDate: cycle.lastClaimDate,
+              status: cycle.status,
+            }
+          : null
+      );
 
-      if (cycle && cycle.lastClaimDate) {
-        const lastKey = getDateKey(
-          cycle.lastClaimDate,
-          timezone
+      // Enforce the 24-hour claim cooldown and 48-hour streak deadline.
+      if (cycle?.lastClaimDate) {
+        const nextClaimAt = new Date(
+          cycle.lastClaimDate.getTime() + 24 * 60 * 60 * 1000
         );
-        console.log("CLAIM: date comparison", {
-          todayKey,
-          yesterdayKey,
-          lastKey,
-          timezone,
-          alreadyClaimedToday: lastKey === todayKey,
-        });
 
-        if (lastKey === todayKey) {
-          throw new Error('ALREADY_CLAIMED_TODAY');
+        if (now < nextClaimAt) {
+          throw new Error('CLAIM_COOLDOWN_ACTIVE');
         }
 
-        if (lastKey !== yesterdayKey) {
+        const streakDeadline = new Date(
+          cycle.lastClaimDate.getTime() + 48 * 60 * 60 * 1000
+        );
+
+        if (now >= streakDeadline) {
           cycle.status = 'broken';
           await cycle.save({ session });
           cycle = null;
@@ -231,9 +203,10 @@ router.post('/daily-streak/claim', authMiddleware, async (req, res) => {
         cycle = null;
       }
 
+      // Start Day 1 or a new cycle when required.
       if (!cycle) {
         const latestCycle = await StreakCycle.findOne({
-          user: userId
+          user: userId,
         })
           .sort({ cycleNumber: -1 })
           .session(session);
@@ -243,22 +216,24 @@ router.post('/daily-streak/claim', authMiddleware, async (req, res) => {
           : 1;
 
         [cycle] = await StreakCycle.create(
-          [{
-            user: userId,
-            cycleNumber,
-            startDate: now,
-            currentDay: 0,
-            status: 'active'
-          }],
+          [
+            {
+              user: userId,
+              cycleNumber,
+              startDate: now,
+              currentDay: 0,
+              status: 'active',
+            },
+          ],
           { session }
         );
       }
 
-      day = cycle.currentDay + 1;
+      const day = cycle.currentDay + 1;
 
       const reward = await StreakReward.findOne({
         day,
-        isActive: true
+        isActive: true,
       }).session(session);
 
       if (!reward) {
@@ -267,7 +242,7 @@ router.post('/daily-streak/claim', authMiddleware, async (req, res) => {
 
       const existingClaim = await StreakClaim.findOne({
         cycle: cycle._id,
-        day
+        day,
       }).session(session);
 
       if (existingClaim) {
@@ -277,9 +252,10 @@ router.post('/daily-streak/claim', authMiddleware, async (req, res) => {
       let wallet = null;
       let balanceAfter = null;
 
+      // Only VES rewards are credited to the wallet.
       if (reward.rewardType === 'VES') {
         wallet = await Wallet.findOne({
-          user: userId
+          user: userId,
         }).session(session);
 
         if (!wallet) {
@@ -295,30 +271,34 @@ router.post('/daily-streak/claim', authMiddleware, async (req, res) => {
         balanceAfter = wallet.balance;
 
         await WalletTransaction.create(
-          [{
-            user: userId,
-            wallet: wallet._id,
-            type: 'CREDIT',
-            amount: reward.amount,
-            source: 'STREAK_REWARD',
-            balanceAfter,
-            description: `Daily streak Day ${day} reward`,
-            idempotencyKey: `streak:${cycle._id}:day:${day}`
-          }],
+          [
+            {
+              user: userId,
+              wallet: wallet._id,
+              type: 'CREDIT',
+              amount: reward.amount,
+              source: 'STREAK_REWARD',
+              balanceAfter,
+              description: `Daily streak Day ${day} reward`,
+              idempotencyKey: `streak:${cycle._id}:day:${day}`,
+            },
+          ],
           { session }
         );
       }
 
       const [claim] = await StreakClaim.create(
-        [{
-          user: userId,
-          cycle: cycle._id,
-          day,
-          rewardType: reward.rewardType,
-          amount: reward.amount,
-          provider: reward.provider,
-          claimedAt: now
-        }],
+        [
+          {
+            user: userId,
+            cycle: cycle._id,
+            day,
+            rewardType: reward.rewardType,
+            amount: reward.amount,
+            provider: reward.provider,
+            claimedAt: now,
+          },
+        ],
         { session }
       );
 
@@ -339,66 +319,77 @@ router.post('/daily-streak/claim', authMiddleware, async (req, res) => {
         walletBalance: balanceAfter,
         cycleNumber: cycle.cycleNumber,
         cycleStatus: cycle.status,
-        claimId: claim._id
+        claimId: claim._id,
       };
     });
 
     return res.status(200).json({
       success: true,
       message: 'Daily reward claimed successfully',
-      claim: result
+      claim: result,
     });
   } catch (error) {
-    if (error.message === 'ALREADY_CLAIMED_TODAY') {
-      return res.status(409).json({
-        success: false,
-        message: 'You have already claimed today’s reward'
-      });
-    }
     console.error('CLAIM ERROR DETAILS:', {
       message: error.message,
       code: error.code,
       keyPattern: error.keyPattern,
       keyValue: error.keyValue,
     });
-    if (error.message === 'DUPLICATE_CLAIM' ||
-      error.code === 11000) {
+
+    if (error.message === 'CLAIM_COOLDOWN_ACTIVE') {
       return res.status(409).json({
         success: false,
-        message: 'This reward has already been claimed'
+        message: 'Your next reward is not unlocked yet',
+      });
+    }
+
+    if (
+      error.message === 'DUPLICATE_CLAIM' ||
+      error.code === 11000
+    ) {
+      return res.status(409).json({
+        success: false,
+        message: "This reward has already been claimed",
       });
     }
 
     if (error.message === 'STREAK_CONFIG_NOT_FOUND') {
       return res.status(404).json({
         success: false,
-        message: 'Streak configuration not found'
+        message: 'Streak configuration not found',
+      });
+    }
+
+    if (error.message === 'INVALID_STREAK_CYCLE_LENGTH') {
+      return res.status(500).json({
+        success: false,
+        message: 'Streak configuration has an invalid cycle length',
       });
     }
 
     if (error.message === 'REWARD_NOT_FOUND') {
       return res.status(404).json({
         success: false,
-        message: 'Reward configuration not found for this day'
+        message: 'Reward configuration not found for this day',
       });
     }
 
-    console.error('Claim API error:', error);
-
     return res.status(500).json({
       success: false,
-      message: 'Failed to claim daily reward'
+      message: 'Failed to claim daily reward',
     });
   } finally {
-    await session.endSession();
+    if (session) {
+      await session.endSession();
+    }
   }
 });
 
-
+// GET /api/daily-streak/history
 router.get('/daily-streak/history', authMiddleware, async (req, res) => {
   try {
     const claims = await StreakClaim.find({
-      user: req.user.userId
+      user: req.user.userId,
     })
       .sort({ claimedAt: -1 })
       .lean();
@@ -407,37 +398,37 @@ router.get('/daily-streak/history', authMiddleware, async (req, res) => {
       success: true,
       message: 'Claim history fetched successfully',
       count: claims.length,
-      claims
+      claims,
     });
   } catch (error) {
-    console.error('Streak history error:', error.message);
+    console.error('Streak history error:', error);
 
     return res.status(500).json({
       success: false,
-      message: 'Failed to fetch claim history'
+      message: 'Failed to fetch claim history',
     });
   }
 });
 
+// GET /api/wallet
 router.get('/wallet', authMiddleware, async (req, res) => {
   try {
     const wallet = await Wallet.findOne({
       user: req.user.userId,
     });
 
-    res.json({
+    return res.status(200).json({
       success: true,
       balance: wallet ? wallet.balance : 0,
     });
   } catch (error) {
     console.error('Wallet fetch error:', error);
 
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: 'Failed to fetch wallet balance',
     });
   }
 });
-
 
 module.exports = router;
