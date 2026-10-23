@@ -470,9 +470,13 @@
   }
 
   .hero {
-    padding: 27px 22px;
-    min-height: auto;
-  }
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  min-height: auto;
+  padding: 26px 18px;
+  border-radius: 17px;
+}
 
   .hero h1 {
     font-size: 32px;
@@ -1027,10 +1031,13 @@ img {
 
   /* Hero */
   .hero {
-    min-height: auto;
-    padding: 26px 18px;
-    border-radius: 17px;
-  }
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  min-height: auto;
+  padding: 22px 18px;
+  border-radius: 17px;
+}
 
   .hero-copy {
     width: 100%;
@@ -1038,9 +1045,51 @@ img {
     padding-left: 0;
   }
 
-  .hero-art {
-    display: none !important;
-  }
+  
+
+.hero-art {
+  display: flex !important;
+  width: 100%;
+  height: 85px;
+  min-width: 0;
+  margin-top: 0;
+  justify-content: flex-end;
+  overflow: visible;
+}
+
+.hero-art-picture {
+  display: flex;
+  width: 85px;
+  max-width: 85px;
+  height: 85px;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.hero-main-image {
+  display: block;
+  width: 85px;
+  height: 85px;
+  max-width: 85px;
+  max-height: 85px;
+  object-fit: contain;
+}
+
+
+.hero-main-image {
+  display: block;
+  width: 100%;
+  max-width: 200px;
+  max-height: 180px;
+  object-fit: contain;
+}
+
+.hero-decoration-left,
+.hero-decoration-right {
+  display: block !important;
+}
+
 
   .hero-decoration-left,
   .hero-decoration-right {
@@ -1318,5 +1367,92 @@ img {
 
   .reward-amount {
     font-size: 18px;
+  }
+}
+
+/* Mobile-only small gift beside the 7-day stats */
+.hero-mobile-art {
+  display: none;
+}
+
+@media (max-width: 700px) {
+  .hero-content-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    width: 100%;
+  }
+
+  .hero-stats {
+    flex: 1;
+    min-width: 0;
+    gap: 12px;
+    margin-top: 22px;
+  }
+
+  .hero-mobile-art {
+    display: flex;
+    flex: 0 0 86px;
+    width: 86px;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .hero-mobile-art img {
+    display: block;
+    width: 86px;
+    height: 86px;
+    object-fit: contain;
+  }
+
+  .hero > .hero-art {
+    display: none !important;
+  }
+}
+
+/* Desktop: show the original large gift only */
+.hero-mobile-art {
+  display: none;
+}
+
+@media (max-width: 700px) {
+  .hero {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .hero-content-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    width: 100%;
+  }
+
+  .hero-stats {
+    flex: 1;
+    min-width: 0;
+    gap: 12px;
+  }
+
+  .hero-mobile-art {
+    display: flex;
+    flex: 0 0 76px;
+    width: 76px;
+    height: 76px;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .hero-mobile-art img {
+    width: 76px;
+    height: 76px;
+    object-fit: contain;
+  }
+
+  .hero > .hero-art {
+    display: none !important;
   }
 }
