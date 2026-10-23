@@ -910,3 +910,42 @@
 .auth-switch-button:hover {
   text-decoration: underline;
 }
+
+.brand-logo {
+  width: 44px;
+  height: 44px;
+  object-fit: contain;
+  display: block;
+  flex-shrink: 0;
+  mix-blend-mode: screen;
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* VELoop animated brand logo */
+.auth-brand-logo {
+  width: 44px;
+  height: 44px;
+  object-fit: contain;
+  display: block;
+  flex-shrink: 0;
+  mix-blend-mode: screen;
+}
+
+/* Desktop brand alignment */
+.auth-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Mobile brand alignment */
+.auth-mobile-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}

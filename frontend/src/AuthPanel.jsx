@@ -1,6 +1,7 @@
 
 import { useState } from 'react';
 import './AuthPanel.css';
+import veloopLogo from './assets/Animation-VELoop-xJgvrjNN.gif';
 
 function PasswordField({
   id,
@@ -64,7 +65,11 @@ export default function AuthPanel({
     <div className="auth-page">
       <aside className="auth-aside">
         <a className="auth-brand" href="#home">
-          <span className="auth-brand-icon">V</span>
+          <img
+            src={veloopLogo}
+            alt="VELoop Logo"
+            className="auth-brand-logo"
+          />
           <span>VELoop <span className="auth-brand-light">Rewards</span></span>
         </a>
 
@@ -105,7 +110,11 @@ export default function AuthPanel({
       <main className="auth-main">
         <div className="auth-card">
           <div className="auth-mobile-brand">
-            <span className="auth-brand-icon">V</span>
+            <img
+              src={veloopLogo}
+              alt="VELoop Logo"
+              className="auth-brand-logo"
+            />
             <span>VELoop Rewards</span>
           </div>
 

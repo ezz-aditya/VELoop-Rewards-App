@@ -15,6 +15,7 @@ import topRight from './assets/Top_right.png';
 import topLeft from './assets/Top_Left.png';
 import trust from './assets/Trust.png';
 import vesCoin from './assets/VEs_Coin.png';
+import veloopLogo from './assets/Animation-VELoop-xJgvrjNN.gif';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -584,7 +585,11 @@ function App() {
         <>
           <nav className="topbar">
             <a className="brand" href="#home">
-              <span className="brand-icon">V</span>
+              <img
+                src={veloopLogo}
+                alt="VELoop Logo"
+                className="brand-logo"
+              />
               VELoop <span className="brand-light">Rewards</span>
             </a>
 
