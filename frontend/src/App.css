@@ -1,4 +1,3 @@
-
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
 #root {
@@ -86,15 +85,22 @@
 }
 
 .hero {
-  min-height: 315px;
-  border: 1px solid #47305d;
+  min-height: 420px;
+  border: 1px solid rgba(177, 138, 218, 0.28);
   border-radius: 22px;
-  background: linear-gradient(115deg, #241638, #38214c 62%, #241631);
+  background:
+    radial-gradient(ellipse at 82% 45%,
+      rgba(133, 58, 205, 0.22),
+      transparent 42%),
+    linear-gradient(115deg,
+      #241638 0%,
+      #38214c 58%,
+      #241631 100%);
   padding: 38px 48px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .hero-copy {
@@ -122,7 +128,7 @@
   color: #f2ce73;
 }
 
-.hero-copy > p,
+.hero-copy>p,
 .section-heading p,
 .why-section p {
   color: #b9aecb;
@@ -188,9 +194,20 @@
   font-size: 25px;
 }
 
-.spark-one { top: 25px; right: 32px; }
-.spark-two { left: 25px; top: 75px; }
-.spark-three { bottom: 48px; right: 35px; }
+.spark-one {
+  top: 25px;
+  right: 32px;
+}
+
+.spark-two {
+  left: 25px;
+  top: 75px;
+}
+
+.spark-three {
+  bottom: 48px;
+  right: 35px;
+}
 
 .hero-art-label {
   position: absolute;
@@ -201,8 +218,15 @@
 }
 
 @keyframes float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-8px); }
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-8px);
+  }
 }
 
 .stats-grid {
@@ -470,13 +494,13 @@
   }
 
   .hero {
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  min-height: auto;
-  padding: 26px 18px;
-  border-radius: 17px;
-}
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    min-height: auto;
+    padding: 26px 18px;
+    border-radius: 17px;
+  }
 
   .hero h1 {
     font-size: 32px;
@@ -648,16 +672,31 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 16px;
+  gap: 18px;
   flex-wrap: wrap;
+  padding: 18px 24px;
+  margin-bottom: 12px;
+
+  background: linear-gradient(135deg,
+      rgba(255, 255, 255, 0.045),
+      rgba(126, 75, 185, 0.08));
+  border: 1px solid rgba(196, 162, 255, 0.16);
+  border-radius: 18px;
+  color: #eee5ff;
+  text-align: center;
+
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  transition: border-color 220ms ease, background 220ms ease;
 }
 
 .trust-image {
   display: block;
   width: 100%;
-  max-width: 160px;
-  max-height: 90px;
+  max-width: 90px;
+  max-height: 70px;
   object-fit: contain;
+  filter: drop-shadow(0 0 12px rgba(38, 255, 153, 0.22));
 }
 
 @media (max-width: 700px) {
@@ -722,20 +761,22 @@
 }
 
 
-/* Keep the top-left asset without overlapping text */
+
+/* Keep the top-left asset decorative and away from the heading */
 .hero-decoration-left {
   display: block !important;
   position: absolute;
   top: 18px;
   left: 18px;
   bottom: auto;
-  width: 58px;
-  height: 58px;
+  width: 48px;
+  height: 48px;
   object-fit: contain;
-  opacity: 0.9;
+  opacity: 0.78;
   z-index: 0;
   pointer-events: none;
 }
+
 
 .hero-copy {
   position: relative;
@@ -952,7 +993,7 @@
   display: flex;
   align-items: center;
   gap: 10px;
-} 
+}
 
 /* ========================================
    VELoop Rewards - Mobile Responsive Fix
@@ -1031,13 +1072,13 @@ img {
 
   /* Hero */
   .hero {
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  min-height: auto;
-  padding: 22px 18px;
-  border-radius: 17px;
-}
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    min-height: auto;
+    padding: 22px 18px;
+    border-radius: 17px;
+  }
 
   .hero-copy {
     width: 100%;
@@ -1045,50 +1086,50 @@ img {
     padding-left: 0;
   }
 
-  
-
-.hero-art {
-  display: flex !important;
-  width: 100%;
-  height: 85px;
-  min-width: 0;
-  margin-top: 0;
-  justify-content: flex-end;
-  overflow: visible;
-}
-
-.hero-art-picture {
-  display: flex;
-  width: 85px;
-  max-width: 85px;
-  height: 85px;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-.hero-main-image {
-  display: block;
-  width: 85px;
-  height: 85px;
-  max-width: 85px;
-  max-height: 85px;
-  object-fit: contain;
-}
 
 
-.hero-main-image {
-  display: block;
-  width: 100%;
-  max-width: 200px;
-  max-height: 180px;
-  object-fit: contain;
-}
+  .hero-art {
+    display: flex !important;
+    width: 100%;
+    height: 85px;
+    min-width: 0;
+    margin-top: 0;
+    justify-content: flex-end;
+    overflow: visible;
+  }
 
-.hero-decoration-left,
-.hero-decoration-right {
-  display: block !important;
-}
+  .hero-art-picture {
+    display: flex;
+    width: 85px;
+    max-width: 85px;
+    height: 85px;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .hero-main-image {
+    display: block;
+    width: 85px;
+    height: 85px;
+    max-width: 85px;
+    max-height: 85px;
+    object-fit: contain;
+  }
+
+
+  .hero-main-image {
+    display: block;
+    width: 100%;
+    max-width: 200px;
+    max-height: 180px;
+    object-fit: contain;
+  }
+
+  .hero-decoration-left,
+  .hero-decoration-right {
+    display: block !important;
+  }
 
 
   .hero-decoration-left,
@@ -1103,7 +1144,7 @@ img {
     overflow-wrap: anywhere;
   }
 
-  .hero-copy > p {
+  .hero-copy>p {
     font-size: 12px;
     line-height: 1.7;
   }
@@ -1153,7 +1194,7 @@ img {
     margin-bottom: 18px;
   }
 
-  .section-heading > div {
+  .section-heading>div {
     min-width: 0;
   }
 
@@ -1262,6 +1303,7 @@ img {
     max-width: 110px;
     max-height: 65px;
   }
+
 
   .footer {
     gap: 10px;
@@ -1406,10 +1448,11 @@ img {
     object-fit: contain;
   }
 
-  .hero > .hero-art {
+  .hero>.hero-art {
     display: none !important;
   }
 }
+
 
 /* Desktop: show the original large gift only */
 .hero-mobile-art {
@@ -1435,6 +1478,7 @@ img {
     flex: 1;
     min-width: 0;
     gap: 12px;
+    margin-top: 22px;
   }
 
   .hero-mobile-art {
@@ -1447,12 +1491,141 @@ img {
   }
 
   .hero-mobile-art img {
+    display: block;
     width: 76px;
     height: 76px;
     object-fit: contain;
   }
 
-  .hero > .hero-art {
+  .hero>.hero-art {
     display: none !important;
+  }
+}
+
+/* VELoop Premium Rewards — visual enhancement */
+.reward-card {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 50% 25%,
+      rgba(143, 75, 207, 0.12),
+      transparent 58%),
+    linear-gradient(160deg, #21182f 0%, #171222 100%);
+  border-color: rgba(177, 138, 218, 0.18);
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.12);
+  transition:
+    transform 240ms ease,
+    border-color 240ms ease,
+    box-shadow 240ms ease,
+    background 240ms ease;
+}
+
+.reward-card::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: 2px;
+  background: linear-gradient(90deg,
+      transparent,
+      rgba(203, 160, 255, 0.75),
+      transparent);
+  opacity: 0;
+  transition: opacity 240ms ease;
+  pointer-events: none;
+}
+
+.reward-card:hover {
+  transform: translateY(-5px);
+  border-color: rgba(190, 144, 245, 0.55);
+  box-shadow:
+    0 14px 30px rgba(0, 0, 0, 0.24),
+    0 0 20px rgba(143, 75, 207, 0.09);
+}
+
+.reward-card:hover::before {
+  opacity: 1;
+}
+
+.reward-card.is-claimed {
+  border-color: rgba(68, 190, 135, 0.58);
+  background:
+    radial-gradient(circle at 50% 25%,
+      rgba(45, 190, 126, 0.09),
+      transparent 58%),
+    linear-gradient(160deg, #1d202b 0%, #171522 100%);
+}
+
+.reward-card.is-today {
+  border-color: #d5a64e;
+  background:
+    radial-gradient(circle at 50% 25%,
+      rgba(255, 190, 65, 0.17),
+      transparent 60%),
+    linear-gradient(160deg, #30213f 0%, #1d1729 100%);
+  box-shadow:
+    0 0 0 1px rgba(213, 166, 78, 0.12),
+    0 10px 28px rgba(213, 166, 78, 0.08);
+}
+
+.reward-card.is-today::before {
+  opacity: 1;
+  background: linear-gradient(90deg,
+      transparent,
+      #ffd779,
+      transparent);
+}
+
+.reward-card .reward-image {
+  transition: transform 260ms ease;
+}
+
+.reward-card:hover .reward-image {
+  transform: translateY(-3px) scale(1.045);
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+  .reward-card,
+  .reward-card::before,
+  .reward-card .reward-image {
+    transition: none;
+  }
+
+  .reward-card:hover,
+  .reward-card:hover .reward-image {
+    transform: none;
+  }
+}
+
+
+/* More visible premium hero gift animation */
+.hero-art-picture {
+  animation: heroGiftFloat 3s ease-in-out infinite;
+  will-change: transform;
+}
+
+.hero-main-image {
+  display: block;
+  transform-origin: center;
+  filter: drop-shadow(0 12px 20px rgba(173, 90, 255, 0.28));
+}
+
+@keyframes heroGiftFloat {
+
+  0%,
+  100% {
+    transform: translateY(0) rotate(-1deg) scale(1);
+  }
+
+  50% {
+    transform: translateY(-14px) rotate(1.5deg) scale(1.035);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-art-picture {
+    animation: none;
+    will-change: auto;
   }
 }

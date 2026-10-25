@@ -1,7 +1,12 @@
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import axios from 'axios';
 import './App.css';
+import './ResponsiveFix.css';
+import './VELoopPremiumTheme.css';
+import totalRewardsBg from "./assets/total-rewards-bg.png";
+import checkedInBg from "./assets/checked-in-bg.png";
+import nextRewardBg from "./assets/next-reward-bg.png";
 import AuthPanel from './AuthPanel';
 import biggerStreak from './assets/Bigger_Streak.png';
 import day4Reward from './assets/Day-4.png';
@@ -9,12 +14,14 @@ import day5Reward from './assets/Day-5.png';
 import day7Reward from './assets/Day-7.png';
 import exclusiveReward from './assets/Exclusive-reward.png';
 import flame from './assets/Flame.png';
+import orbLogo from "./assets/orb-logo.png";
 import mobileHero from './assets/Mobile_Hero.png';
 import stayActive from './assets/Stay_Active.png';
 import topRight from './assets/Top_right.png';
 import topLeft from './assets/Top_Left.png';
 import trust from './assets/Trust.png';
 import vesCoin from './assets/VEs_Coin.png';
+import heroGift from "./assets/hero-gift.png";
 import veloopLogo from './assets/Animation-VELoop-xJgvrjNN.gif';
 
 const API_URL = import.meta.env.VITE_API_URL;
@@ -52,6 +59,8 @@ function App() {
   const [registerError, setRegisterError] = useState('');
   const [registerSuccess, setRegisterSuccess] = useState('');
   const [userName, setUserName] = useState('');
+  const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
+  const profileMenuRef = useRef(null);
 
   const [rewards, setRewards] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -65,6 +74,30 @@ function App() {
   const [claimMessage, setClaimMessage] = useState('');
   const [countdown, setCountdown] = useState('');
 
+  const [showMysteryReveal, setShowMysteryReveal] = useState(false);
+
+
+  useEffect(() => {
+    if (!isProfileMenuOpen) return;
+
+    const handlePointerDown = (event) => {
+      if (profileMenuRef.current && !profileMenuRef.current.contains(event.target)) {
+        setIsProfileMenuOpen(false);
+      }
+    };
+
+    const handleKeyDown = (event) => {
+      if (event.key === 'Escape') setIsProfileMenuOpen(false);
+    };
+
+    document.addEventListener('pointerdown', handlePointerDown);
+    document.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      document.removeEventListener('pointerdown', handlePointerDown);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isProfileMenuOpen]);
 
   useEffect(() => {
     const nextClaimAt = streakStatus?.nextClaimAt;
@@ -407,6 +440,7 @@ function App() {
 
 
   function handleLogout() {
+    setIsProfileMenuOpen(false);
     localStorage.removeItem('velop_token');
 
     setToken('');
@@ -533,6 +567,33 @@ function App() {
     setLoading(false);
   }, []);
 
+  const currentRewardDay = Number(streakStatus?.currentDay ?? 0) + 1;
+
+  const mysteryReward = rewards.find(
+    (reward) => Number(reward.day) === currentRewardDay
+  );
+
+  const mysteryRewardLabel = (() => {
+    if (!mysteryReward) return 'Cycle Complete';
+
+    const amount =
+      mysteryReward.amount ?? mysteryReward.rewardAmount ?? '';
+
+    const type =
+      mysteryReward.type ?? mysteryReward.rewardType ?? 'VES';
+
+    const isGiftCard =
+      String(type).toUpperCase().includes('GIFT') ||
+      String(mysteryReward.provider ?? '')
+        .toLowerCase()
+        .includes('amazon');
+
+    return isGiftCard
+      ? `₹${amount} Amazon Gift Card`
+      : `${amount} ${type}`;
+  })();
+
+
   if (loading) {
     return (
       <div className="streak-app">
@@ -603,17 +664,46 @@ function App() {
                 {walletBalance} VEs
               </span>
 
-              <div className="avatar">
-                {userName.trim().charAt(0).toUpperCase() || 'U'}
-              </div>
+              <div className="profile-menu" ref={profileMenuRef}>
+                <button
+                  type="button"
+                  className="avatar profile-menu-trigger"
+                  aria-label="Open profile menu"
+                  aria-haspopup="menu"
+                  aria-expanded={isProfileMenuOpen}
+                  onClick={() => setIsProfileMenuOpen((open) => !open)}
+                >
+                  {userName.trim().charAt(0).toUpperCase() || 'U'}
+                </button>
 
-              <button
-                type="button"
-                onClick={handleLogout}
-                className="logout-button"
-              >
-                Logout
-              </button>
+                {isProfileMenuOpen && (
+                  <div className="profile-dropdown" role="menu">
+                    <div className="profile-dropdown-heading">
+                      <span className="profile-dropdown-avatar">
+                        {userName.trim().charAt(0).toUpperCase() || 'U'}
+                      </span>
+                      <span className="profile-dropdown-account">
+                        <strong>My Account</strong>
+                        <small>{userName.trim() || 'Signed in'}</small>
+                      </span>
+                    </div>
+
+                    <div className="profile-dropdown-divider" />
+
+                    <button
+                      type="button"
+                      className="profile-dropdown-logout"
+                      role="menuitem"
+                      onClick={handleLogout}
+                    >
+                      <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M10 17l5-5-5-5M15 12H3m9-7h6a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-6" />
+                      </svg>
+                      <span>Logout</span>
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
           </nav>
 
@@ -622,407 +712,459 @@ function App() {
               Home / Rewards / Daily Streak
             </div>
 
-            
-<section className="hero">
-  <img
-    src={topLeft}
-    alt=""
-    className="hero-decoration hero-decoration-left"
-  />
 
-  <div className="hero-copy">
-    <span className="eyebrow">
-      YOUR DAILY REWARD JOURNEY
-    </span>
+            <section className="hero">
+              <img
+                src={topLeft}
+                alt=""
+                className="hero-decoration hero-decoration-left"
+              />
 
-    <h1>
-      Login Daily &amp; Earn
-      <br />
-      <span>Bigger Rewards!</span>
-    </h1>
+              <div className="hero-copy">
+                <span className="eyebrow">
+                  YOUR DAILY REWARD JOURNEY
+                </span>
 
-    <p>
-      Stay consistent, build your streak, and unlock
-      exciting rewards every day.
-    </p>
+                <h1>
+                  Login Daily &amp; Earn
+                  <br />
+                  <span>Bigger Rewards!</span>
+                </h1>
 
-    <div className="hero-content-row">
-      <div className="hero-stats">
-        <div>
-          <strong>
-            <img src={flame} alt="" className="inline-icon" />{' '}
-            {streakStatus?.currentDay ?? 0} Days
-          </strong>
-          <span>Current Streak</span>
-        </div>
+                <p>
+                  Stay consistent, build your streak, and unlock
+                  exciting rewards every day.
+                </p>
 
-        <div>
-          <strong>7 Days</strong>
-          <span>Reward Journey</span>
-        </div>
-      </div>
+                <div className="hero-content-row">
+                  <div className="hero-stats">
+                    <div>
+                      <strong>
+                        <img src={flame} alt="" className="inline-icon" />{' '}
+                        {streakStatus?.currentDay ?? 0} Days
+                      </strong>
+                      <span>Current Streak</span>
+                    </div>
 
-      <div className="hero-mobile-art">
-        <img
-          src={exclusiveReward}
-          alt="Exclusive VELoop reward"
-        />
-      </div>
-    </div>
-  </div>
+                    <div>
+                      <strong>7 Days</strong>
+                      <span>Reward Journey</span>
+                    </div>
+                  </div>
 
-  <div className="hero-art">
-    <img
-      src={topRight}
-      alt=""
-      className="hero-decoration hero-decoration-right"
-    />
-
-    <div className="hero-art-picture">
-      <img
-        src={exclusiveReward}
-        alt="Exclusive VELoop reward"
-        className="hero-main-image"
-      />
-    </div>
-
-    <span className="hero-art-label">
-      YOUR NEXT REWARD AWAITS
-    </span>
-  </div>
-</section>
-
-
-      <section className="stats-grid">
-        <div className="stat-card">
-          <span className="stat-icon">7</span>
-          <div>
-            <span>Total Rewards</span>
-            <strong>7</strong>
-          </div>
-        </div>
-
-        <div className="stat-card">
-          <span className="stat-icon">
-            <img
-              src={flame}
-              alt=""
-              className="stat-image"
-            />
-          </span>
-          <div>
-            <span>Checked In</span>
-            <strong>{streakStatus?.currentDay ?? 0}</strong>
-          </div>
-        </div>
-
-        <div className="stat-card">
-          <span className="stat-icon">
-            <img
-              src={vesCoin}
-              alt=""
-              className="stat-image"
-            />
-          </span>
-          <div>
-
-            <span>Next Reward</span>
-
-            <strong>
-              {(() => {
-                const nextReward = rewards.find(
-                  (reward) =>
-                    Number(reward.day) ===
-                    Number(streakStatus?.currentDay ?? 0) + 1
-                );
-
-                if (!nextReward) return 'Cycle Complete';
-
-                const amount =
-                  nextReward.amount ?? nextReward.rewardAmount ?? '';
-
-                const type =
-                  nextReward.type ?? nextReward.rewardType ?? 'VES';
-
-                if (
-                  String(type).toUpperCase().includes('GIFT') ||
-                  String(nextReward.provider ?? '').toLowerCase().includes('amazon')
-                ) {
-                  return `₹${amount} Amazon Gift Card`;
-                }
-
-                return `${amount} VES`;
-              })()}
-            </strong>
-
-            {countdown && (
-              <small
-                style={{
-                  display: 'block',
-                  marginTop: '6px',
-                  color: '#f5c85b',
-                }}
-              >
-                Unlocks in {countdown}
-              </small>
-            )}
-
-
-
-
-          </div>
-        </div>
-      </section>
-
-      <section className="rewards-section">
-        <div className="section-heading">
-          <div>
-            <span className="eyebrow">
-              KEEP THE MOMENTUM
-            </span>
-            <h2>Your 7-Day Streak</h2>
-            <p>
-              Check in daily to unlock the next reward.
-            </p>
-          </div>
-
-          <span className="progress-pill">
-            {streakStatus?.claims?.length ?? 0} / 7 DAYS
-          </span>
-        </div>
-
-        <div className="rewards-grid">
-          {rewards.map((reward) => {
-
-            const currentDay = Number(streakStatus?.currentDay ?? 0);
-
-            const claimedDays = new Set(
-              (streakStatus?.claims ?? []).map(
-                (claim) => Number(claim.day)
-              )
-            );
-
-            const isClaimed = claimedDays.has(Number(reward.day));
-            const isToday =
-              Number(reward.day) === currentDay + 1 &&
-              streakStatus?.canClaimToday === true;
-
-
-
-            return (
-              <article
-                className={`reward-card ${isToday ? 'is-today' : ''
-                  } ${isClaimed ? 'is-claimed' : ''}`}
-                key={reward.day}
-              >
-                <div className="day-label">
-                  <span>DAY {reward.day}</span>
-
-                  {isClaimed && (
-                    <span className="mini-check">✓</span>
-                  )}
-
-                  {isToday && (
-                    <span className="today-tag">TODAY</span>
-                  )}
+                  <div className="hero-mobile-art">
+                    <img
+                      src={exclusiveReward}
+                      alt="Exclusive VELoop reward"
+                    />
+                  </div>
                 </div>
+              </div>
 
-                <div className="reward-art">
+              <div className="mystery-orb-stage">
+                <button
+                  type="button"
+                  className={`mystery-orb-button ${showMysteryReveal ? 'is-open' : ''
+                    }`}
+                  onClick={() => setShowMysteryReveal((open) => !open)}
+                  aria-label="Reveal your next mystery reward"
+                  aria-expanded={showMysteryReveal}
+                  aria-controls="mystery-reward-reveal"
+                >
+                  <span className="mystery-orb-core">
+                    <span className="mystery-orb-question">
+                      <img src={orbLogo} alt="" />
+                    </span>
+                  </span>
+
+                  <span className="mystery-orb-spark spark-one">✦</span>
+                  <span className="mystery-orb-spark spark-two">✧</span>
+                  <span className="mystery-orb-spark spark-three">✦</span>
+                </button>
+
+                <span className="mystery-orb-caption">
+                  TAP TO REVEAL
+                </span>
+
+                {showMysteryReveal && (
+                  <div
+                    className="mystery-reveal"
+                    id="mystery-reward-reveal"
+                    role="status"
+                  >
+                    <span className="mystery-reveal-eyebrow">
+                      YOUR NEXT REWARD
+                    </span>
+
+                    <strong>{mysteryRewardLabel}</strong>
+
+                    <p>
+                      {mysteryReward
+                        ? `Day ${mysteryReward.day} is waiting. Keep your streak alive!`
+                        : 'You have completed this reward cycle.'}
+                    </p>
+
+                    <button
+                      type="button"
+                      className="mystery-reveal-close"
+                      onClick={() => setShowMysteryReveal(false)}
+                    >
+                      Close
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              <div className="hero-art">
+                <img
+                  src={topRight}
+                  alt=""
+                  className="hero-decoration hero-decoration-right"
+                />
+
+
+                <div className="hero-art-picture">
                   <img
-                    src={
-                      reward.image ||
-                      rewardImages[reward.day] ||
-                      vesCoin
-                    }
-                    alt={`Day ${reward.day} reward`}
-                    className="reward-image"
-                    loading="lazy"
+                    src={heroGift}
+                    alt="Purple gift box with golden ribbon and sparkles"
+                    className="hero-main-image"
                   />
                 </div>
 
-                <strong className="reward-amount">
-                  {reward.amount}
-                </strong>
 
-                <span className="reward-type">
-                  {reward.type}
+                <span className="hero-art-label">
+                  YOUR NEXT REWARD AWAITS
                 </span>
+              </div>
+            </section>
+
+
+            <section className="stats-grid">
+              <div
+                className="stat-card stat-card-rewards"
+                style={{ "--card-art": `url(${totalRewardsBg})` }}
+              >
+                <span className="stat-icon">7</span>
+                <div>
+                  <span>Total Rewards</span>
+                  <strong>7</strong>
+                </div>
+              </div>
+
+              <div
+                className="stat-card stat-card-checkins"
+                style={{ "--card-art": `url(${checkedInBg})` }}
+              >
+                <span className="stat-icon">
+                  <img src={flame} alt="" className="stat-image" />
+                </span>
+                <div>
+                  <span>Checked In</span>
+                  <strong>{streakStatus?.currentDay ?? 0}</strong>
+                </div>
+              </div>
+
+              <div
+                className="stat-card stat-card-next-reward"
+                style={{ "--card-art": `url(${nextRewardBg})` }}
+              >
+                <span className="stat-icon">
+                  <img src={vesCoin} alt="" className="stat-image" />
+                </span>
+                <div>
+                  <span>Next Reward</span>
+
+                  <strong>
+                    {(() => {
+                      const nextReward = rewards.find(
+                        (reward) =>
+                          Number(reward.day) ===
+                          Number(streakStatus?.currentDay ?? 0) + 1
+                      );
+
+                      if (!nextReward) return 'Cycle Complete';
+
+                      const amount =
+                        nextReward.amount ?? nextReward.rewardAmount ?? '';
+
+                      const type =
+                        nextReward.type ?? nextReward.rewardType ?? 'VES';
+
+                      if (
+                        String(type).toUpperCase().includes('GIFT') ||
+                        String(nextReward.provider ?? '').toLowerCase().includes('amazon')
+                      ) {
+                        return `₹${amount} Amazon Gift Card`;
+                      }
+
+                      return `${amount} VES`;
+                    })()}
+                  </strong>
+
+                  {countdown && (
+
+                    <small className="stat-countdown">
+                      Unlocks in {countdown}
+                    </small>
+
+                  )}
 
 
 
-                <button
-                  className={`reward-button ${isToday && streakStatus?.canClaimToday && !isClaimed
-                    ? 'claim-button'
-                    : ''
-                    }`}
-                  disabled={
-                    !isToday ||
-                    !streakStatus?.canClaimToday ||
-                    claimLoading ||
-                    statusLoading ||
-                    isClaimed
-                  }
-                  onClick={handleClaim}
+
+                </div>
+              </div>
+            </section>
+
+            <section className="rewards-section">
+              <div className="section-heading">
+                <div>
+                  <span className="eyebrow">
+                    KEEP THE MOMENTUM
+                  </span>
+                  <h2>Your 7-Day Streak</h2>
+                  <p>
+                    Check in daily to unlock the next reward.
+                  </p>
+                </div>
+
+                <span className="progress-pill">
+                  {streakStatus?.claims?.length ?? 0} / 7 DAYS
+                </span>
+              </div>
+
+              <div className="rewards-grid">
+                {rewards.map((reward) => {
+
+                  const currentDay = Number(streakStatus?.currentDay ?? 0);
+
+                  const claimedDays = new Set(
+                    (streakStatus?.claims ?? []).map(
+                      (claim) => Number(claim.day)
+                    )
+                  );
+
+                  const isClaimed = claimedDays.has(Number(reward.day));
+                  const isToday =
+                    Number(reward.day) === currentDay + 1 &&
+                    streakStatus?.canClaimToday === true;
+
+
+
+                  return (
+                    <article
+                      className={`reward-card ${isToday ? 'is-today' : ''
+                        } ${isClaimed ? 'is-claimed' : ''}`}
+                      key={reward.day}
+                    >
+                      <div className="day-label">
+                        <span>DAY {reward.day}</span>
+
+                        {isClaimed && (
+                          <span className="mini-check">✓</span>
+                        )}
+
+                        {isToday && (
+                          <span className="today-tag">TODAY</span>
+                        )}
+                      </div>
+
+                      <div className="reward-art">
+                        <img
+                          src={
+                            reward.image ||
+                            rewardImages[reward.day] ||
+                            vesCoin
+                          }
+                          alt={`Day ${reward.day} reward`}
+                          className="reward-image"
+                          loading="lazy"
+                        />
+                      </div>
+
+                      <strong className="reward-amount">
+                        {reward.amount}
+                      </strong>
+
+                      <span className="reward-type">
+                        {reward.type}
+                      </span>
+
+
+
+                      <button
+                        className={`reward-button ${isToday && streakStatus?.canClaimToday && !isClaimed
+                          ? 'claim-button'
+                          : ''
+                          }`}
+                        disabled={
+                          !isToday ||
+                          !streakStatus?.canClaimToday ||
+                          claimLoading ||
+                          statusLoading ||
+                          isClaimed
+                        }
+                        onClick={handleClaim}
+                      >
+                        {isClaimed
+                          ? '✓ Claimed'
+                          : claimLoading
+                            ? 'Claiming...'
+                            : isToday && streakStatus?.canClaimToday
+                              ? 'Claim Reward'
+                              : '🔒 Locked'}
+                      </button>
+
+
+                    </article>
+                  );
+                })}
+              </div>
+
+              {claimMessage && (
+                <p role="status" className="claim-message">
+                  {claimMessage}
+                </p>
+              )}
+            </section>
+
+            <section className="why-section">
+              <img
+                src={biggerStreak}
+                alt="Build a bigger streak"
+                className="why-image"
+              />
+
+              <div>
+                <h3>Why Maintain Your Streak?</h3>
+                <p>
+                  Every day counts! Keep coming back to unlock
+                  bigger rewards. Miss a day and you may have
+                  to start your streak again.
+                </p>
+              </div>
+
+              <img
+                src={stayActive}
+                alt=""
+                className="why-side-image"
+                loading="lazy"
+              />
+            </section>
+
+            <section className="trust-section">
+              <img
+                src={trust}
+                alt=""
+                className="trust-image"
+              />
+              <span>
+                Rewards designed for your daily consistency.
+              </span>
+            </section>
+
+            <footer className="footer">
+              <span>© 2026 VELoop Rewards</span>
+              <span>Daily consistency. Bigger rewards.</span>
+
+            </footer>
+          </main>
+
+          {/* CPA Demo Modal */}
+          {
+            showCpaDemo && (
+              <div
+                style={{
+                  position: 'fixed',
+                  inset: 0,
+                  background: 'rgba(0, 0, 0, 0.75)',
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  zIndex: 9999,
+                  padding: '20px',
+                }}
+              >
+                <div
+                  style={{
+                    width: '100%',
+                    maxWidth: '420px',
+                    background: '#171923',
+                    border: '1px solid #343849',
+                    borderRadius: '18px',
+                    padding: '28px',
+                    color: '#fff',
+                    textAlign: 'center',
+                  }}
                 >
-                  {isClaimed
-                    ? '✓ Claimed'
-                    : claimLoading
-                      ? 'Claiming...'
-                      : isToday && streakStatus?.canClaimToday
-                        ? 'Claim Reward'
-                        : '🔒 Locked'}
-                </button>
+                  <div style={{ fontSize: '38px', marginBottom: '12px' }}>
+                    🎁
+                  </div>
 
+                  <h2 style={{ marginBottom: '10px' }}>
+                    Reward Verification
+                  </h2>
 
-              </article>
-            );
-          })}
-        </div>
+                  <p style={{ color: '#b8bdcc', lineHeight: 1.6 }}>
+                    Complete this demo verification step to continue with your
+                    daily streak reward claim.
+                  </p>
 
-        {claimMessage && (
-          <p role="status" className="claim-message">
-            {claimMessage}
-          </p>
-        )}
-      </section>
+                  <div
+                    style={{
+                      background: '#222637',
+                      borderRadius: '10px',
+                      padding: '12px',
+                      margin: '18px 0',
+                      color: '#f5c85b',
+                      fontSize: '13px',
+                    }}
+                  >
+                    Demo only — no real advertisement or CPA network is connected.
+                  </div>
 
-      <section className="why-section">
-        <img
-          src={biggerStreak}
-          alt="Build a bigger streak"
-          className="why-image"
-        />
+                  <button
+                    onClick={processRewardClaim}
+                    disabled={claimLoading}
+                    style={{
+                      width: '100%',
+                      padding: '12px',
+                      border: 'none',
+                      borderRadius: '10px',
+                      background: '#f5c85b',
+                      color: '#171923',
+                      fontWeight: 'bold',
+                      cursor: claimLoading ? 'not-allowed' : 'pointer',
+                      opacity: claimLoading ? 0.6 : 1,
+                    }}
+                  >
+                    {claimLoading ? 'Verifying...' : 'Continue Demo Verification'}
+                  </button>
 
-        <div>
-          <h3>Why Maintain Your Streak?</h3>
-          <p>
-            Every day counts! Keep coming back to unlock
-            bigger rewards. Miss a day and you may have
-            to start your streak again.
-          </p>
-        </div>
-
-        <img
-          src={stayActive}
-          alt=""
-          className="why-side-image"
-          loading="lazy"
-        />
-      </section>
-
-      <section className="trust-section">
-        <img
-          src={trust}
-          alt=""
-          className="trust-image"
-        />
-        <span>
-          Rewards designed for your daily consistency.
-        </span>
-      </section>
-
-      <footer className="footer">
-        <span>© 2026 VELoop Rewards</span>
-        <span>Daily consistency. Bigger rewards.</span>
-
-      </footer>
-    </main>
-
-          {/* CPA Demo Modal */ }
-  {
-    showCpaDemo && (
-      <div
-        style={{
-          position: 'fixed',
-          inset: 0,
-          background: 'rgba(0, 0, 0, 0.75)',
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          zIndex: 9999,
-          padding: '20px',
-        }}
-      >
-        <div
-          style={{
-            width: '100%',
-            maxWidth: '420px',
-            background: '#171923',
-            border: '1px solid #343849',
-            borderRadius: '18px',
-            padding: '28px',
-            color: '#fff',
-            textAlign: 'center',
-          }}
-        >
-          <div style={{ fontSize: '38px', marginBottom: '12px' }}>
-            🎁
-          </div>
-
-          <h2 style={{ marginBottom: '10px' }}>
-            Reward Verification
-          </h2>
-
-          <p style={{ color: '#b8bdcc', lineHeight: 1.6 }}>
-            Complete this demo verification step to continue with your
-            daily streak reward claim.
-          </p>
-
-          <div
-            style={{
-              background: '#222637',
-              borderRadius: '10px',
-              padding: '12px',
-              margin: '18px 0',
-              color: '#f5c85b',
-              fontSize: '13px',
-            }}
-          >
-            Demo only — no real advertisement or CPA network is connected.
-          </div>
-
-          <button
-            onClick={processRewardClaim}
-            disabled={claimLoading}
-            style={{
-              width: '100%',
-              padding: '12px',
-              border: 'none',
-              borderRadius: '10px',
-              background: '#f5c85b',
-              color: '#171923',
-              fontWeight: 'bold',
-              cursor: claimLoading ? 'not-allowed' : 'pointer',
-              opacity: claimLoading ? 0.6 : 1,
-            }}
-          >
-            {claimLoading ? 'Verifying...' : 'Continue Demo Verification'}
-          </button>
-
-          <button
-            onClick={() => setShowCpaDemo(false)}
-            disabled={claimLoading}
-            style={{
-              width: '100%',
-              marginTop: '10px',
-              padding: '11px',
-              border: '1px solid #45495b',
-              borderRadius: '10px',
-              background: 'transparent',
-              color: '#fff',
-              cursor: claimLoading ? 'not-allowed' : 'pointer',
-            }}
-          >
-            Cancel
-          </button>
-        </div>
-      </div>
-    )
-  }
+                  <button
+                    onClick={() => setShowCpaDemo(false)}
+                    disabled={claimLoading}
+                    style={{
+                      width: '100%',
+                      marginTop: '10px',
+                      padding: '11px',
+                      border: '1px solid #45495b',
+                      borderRadius: '10px',
+                      background: 'transparent',
+                      color: '#fff',
+                      cursor: claimLoading ? 'not-allowed' : 'pointer',
+                    }}
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            )
+          }
 
         </>
       )
-}
+      }
     </div >
   );
 }

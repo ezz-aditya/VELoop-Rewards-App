@@ -1,0 +1,1155 @@
+
+/* =========================================
+   VELoop Rewards — Responsive Layout System
+   Desktop • Tablet • Mobile
+   ========================================= */
+
+:root {
+  --vl-bg: #100d1b;
+  --vl-surface: #1a1527;
+  --vl-purple: #38214c;
+  --vl-purple-light: #bca7e8;
+  --vl-gold: #f2ce73;
+  --vl-border: #332741;
+  --vl-green: #72d6a1;
+}
+
+/* Prevent unwanted horizontal overflow */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  width: 100%;
+  min-height: 100%;
+  margin: 0;
+}
+
+body {
+  overflow-x: hidden;
+}
+
+img {
+  max-width: 100%;
+}
+
+.streak-app {
+  min-height: 100vh;
+  width: 100%;
+  overflow-x: clip;
+  background: var(--vl-bg);
+  color: #f7f4ff;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+/* ---------- Navigation ---------- */
+
+.topbar {
+  width: 100%;
+  min-height: 64px;
+  height: auto;
+  padding: 12px clamp(16px, 5vw, 90px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.brand {
+  min-width: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  white-space: nowrap;
+}
+
+.brand-logo {
+  display: block;
+  flex: 0 0 auto;
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+}
+
+.nav-right {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.balance {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  white-space: nowrap;
+}
+
+.avatar {
+  flex: 0 0 auto;
+}
+
+.logout-button {
+  flex: 0 0 auto;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+/* ---------- Main container ---------- */
+
+.main-content {
+  width: min(1200px, calc(100% - 48px));
+  margin-inline: auto;
+}
+
+.breadcrumb {
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+/* ---------- Hero ---------- */
+
+.hero {
+  position: relative;
+  isolation: isolate;
+  min-width: 0;
+  min-height: 290px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: clamp(20px, 4vw, 56px);
+  padding: clamp(26px, 4vw, 48px);
+  overflow: hidden;
+
+  background:
+    radial-gradient(
+      ellipse at 82% 45%,
+      rgba(133, 58, 205, 0.2),
+      transparent 42%
+    ),
+    linear-gradient(
+      115deg,
+      #241638 0%,
+      #38214c 58%,
+      #241631 100%
+    );
+
+  border: 1px solid rgba(177, 138, 218, 0.28);
+  border-radius: 22px;
+}
+
+.hero-copy {
+  position: relative;
+  z-index: 2;
+  flex: 1 1 0;
+  min-width: 0;
+  max-width: 620px;
+  padding-left: 0;
+}
+
+.hero .eyebrow {
+  display: inline-block;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+
+.hero h1 {
+  max-width: 100%;
+  font-size: clamp(30px, 3.2vw, 46px);
+  line-height: 1.16;
+  overflow-wrap: anywhere;
+}
+
+.hero-copy > p {
+  max-width: 500px;
+}
+
+.hero-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+}
+
+.hero-content-row {
+  width: 100%;
+}
+
+.hero-art {
+  position: relative;
+  z-index: 1;
+  flex: 0 1 320px;
+  width: min(320px, 35%);
+  min-width: 0;
+  height: 245px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: visible;
+}
+
+.hero-art-picture {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 320px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hero-main-image {
+  display: block;
+  width: 100%;
+  max-width: 300px;
+  max-height: 245px;
+  height: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 12px 22px rgba(150, 70, 255, 0.22));
+}
+
+.hero-art-label {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-size: 9px;
+  letter-spacing: 1.5px;
+  color: #dfc8f6;
+}
+
+.hero-mobile-art {
+  display: none;
+}
+
+/* Decorative images stay behind text */
+.hero-decoration-left {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  z-index: 0;
+  width: 42px;
+  height: 42px;
+  object-fit: contain;
+  pointer-events: none;
+}
+
+.hero-decoration-right {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 0;
+  width: 64px;
+  height: 64px;
+  object-fit: contain;
+  pointer-events: none;
+}
+
+/* ---------- Statistics ---------- */
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  margin: 18px 0 44px;
+}
+
+.stat-card {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: clamp(14px, 2vw, 22px);
+}
+
+.stat-icon {
+  flex: 0 0 42px;
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+}
+
+.stat-card > div {
+  min-width: 0;
+}
+
+.stat-card strong {
+  overflow-wrap: anywhere;
+}
+
+.stat-card small {
+  display: block;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.stat-image {
+  width: 30px;
+  height: 30px;
+  object-fit: contain;
+}
+
+.balance-coin,
+.inline-icon {
+  object-fit: contain;
+  vertical-align: middle;
+}
+
+/* ---------- Streak rewards ---------- */
+
+.rewards-section {
+  min-width: 0;
+  margin-bottom: 40px;
+}
+
+.section-heading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  margin-bottom: 24px;
+}
+
+.section-heading > div {
+  min-width: 0;
+}
+
+.section-heading h2 {
+  overflow-wrap: anywhere;
+}
+
+.progress-pill {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
+.rewards-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  align-items: stretch;
+  gap: 12px;
+}
+
+.reward-card {
+  position: relative;
+  min-width: 0;
+  min-height: 230px;
+  padding: 14px 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  text-align: center;
+
+  background:
+    radial-gradient(
+      circle at 50% 25%,
+      rgba(143, 75, 207, 0.1),
+      transparent 58%
+    ),
+    linear-gradient(160deg, #21182f, #171222);
+
+  border: 1px solid var(--vl-border);
+  border-radius: 15px;
+
+  transition:
+    transform 220ms ease,
+    border-color 220ms ease,
+    box-shadow 220ms ease;
+}
+
+.reward-card.is-claimed {
+  border-color: rgba(68, 190, 135, 0.58);
+}
+
+.reward-card.is-today {
+  border-color: #d5a64e;
+  box-shadow: 0 0 20px rgba(213, 166, 78, 0.1);
+}
+
+.day-label {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px;
+  font-size: 10px;
+}
+
+.reward-art {
+  flex: 0 0 100px;
+  height: 100px;
+  margin: 12px 0 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.reward-image {
+  display: block;
+  width: 100%;
+  max-width: 100px;
+  height: 90px;
+  object-fit: contain;
+}
+
+.reward-amount {
+  margin-top: 4px;
+  color: var(--vl-gold);
+  font-size: clamp(17px, 1.5vw, 22px);
+}
+
+.reward-type {
+  min-height: 28px;
+  margin: 5px 0 12px;
+  color: #b8abc9;
+  font-size: 10px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.reward-button {
+  width: 100%;
+  min-height: 38px;
+  margin-top: auto;
+  padding: 9px 4px;
+  border-radius: 8px;
+  font-size: 11px;
+  overflow-wrap: anywhere;
+}
+
+.reward-button:disabled {
+  cursor: not-allowed;
+}
+
+.reward-button.claim-button {
+  cursor: pointer;
+}
+
+/* ---------- Supporting sections ---------- */
+
+.why-section {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: clamp(16px, 3vw, 28px);
+  margin-bottom: 30px;
+}
+
+.why-section > div {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.why-section h3 {
+  overflow-wrap: anywhere;
+}
+
+.why-section p {
+  line-height: 1.7;
+  overflow-wrap: anywhere;
+}
+
+.why-image,
+.why-side-image {
+  flex: 0 1 130px;
+  width: 100%;
+  max-width: 130px;
+  max-height: 110px;
+  object-fit: contain;
+}
+
+.trust-section {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  padding: 10px 0;
+  text-align: center;
+}
+
+.trust-image {
+  width: 100%;
+  max-width: 130px;
+  max-height: 90px;
+  object-fit: contain;
+}
+
+.footer {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 22px 0;
+  border-top: 1px solid #302640;
+  font-size: 11px;
+}
+
+/* ---------- Authentication panel ---------- */
+
+.login-panel {
+  position: relative;
+  z-index: 10;
+  width: min(420px, calc(100% - 32px));
+  margin: 24px auto;
+  padding: 24px;
+  box-sizing: border-box;
+  border-radius: 16px;
+  background: #fff;
+  color: #241638;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.18);
+}
+
+.login-panel form {
+  display: grid;
+  gap: 12px;
+}
+
+.login-panel input {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+}
+
+.login-panel button {
+  cursor: pointer;
+}
+
+.auth-switch-button {
+  background: transparent;
+  color: #6024bd;
+  border: none;
+  padding: 0;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* ---------- Laptop / medium desktop ---------- */
+
+@media (max-width: 1099px) and (min-width: 701px) {
+  .main-content {
+    width: calc(100% - 48px);
+  }
+
+  .hero {
+    gap: 20px;
+    padding: 30px;
+  }
+
+  .hero-art {
+    flex-basis: 240px;
+    width: 240px;
+    height: 210px;
+  }
+
+  .hero-art-picture {
+    max-width: 240px;
+  }
+
+  .hero-main-image {
+    max-width: 225px;
+    max-height: 205px;
+  }
+
+  .rewards-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 12px;
+  }
+
+  .reward-card {
+    min-height: 220px;
+  }
+
+  .reward-amount {
+    font-size: 19px;
+  }
+}
+
+/* ---------- Mobile and small tablet ---------- */
+
+@media (max-width: 700px) {
+  .topbar {
+    padding: 10px 4%;
+    gap: 8px;
+  }
+
+  .brand {
+    gap: 6px;
+    font-size: 15px;
+  }
+
+  .brand-logo {
+    width: 32px;
+    height: 32px;
+  }
+
+  .brand-light {
+    display: none;
+  }
+
+  .nav-right {
+    gap: 7px;
+  }
+
+  .balance {
+    padding: 7px 8px;
+    font-size: 10px;
+  }
+
+  .avatar {
+    width: 30px;
+    height: 30px;
+  }
+
+  .logout-button {
+    padding: 6px 8px;
+    font-size: 12px;
+  }
+
+  .main-content {
+    width: calc(100% - 28px);
+  }
+
+  .breadcrumb {
+    padding: 18px 0 14px;
+    font-size: 11px;
+  }
+
+  .hero {
+    min-height: auto;
+    display: block;
+    padding: 24px 18px 20px;
+    border-radius: 18px;
+  }
+
+  .hero-copy {
+    max-width: none;
+    padding-left: 0;
+  }
+
+  .hero h1 {
+    font-size: clamp(27px, 6vw, 34px);
+    letter-spacing: -1px;
+    margin: 12px 0;
+  }
+
+  .hero-copy > p {
+    font-size: 12px;
+    line-height: 1.7;
+  }
+
+  .hero-decoration-left {
+    width: 34px;
+    height: 34px;
+    top: 9px;
+    left: 9px;
+    opacity: 0.8;
+  }
+
+  .hero-decoration-right {
+    display: none;
+  }
+
+  .hero > .hero-art {
+    display: none !important;
+  }
+
+  .hero-content-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-top: 18px;
+  }
+
+  .hero-stats {
+    flex: 1 1 auto;
+    min-width: 0;
+    margin-top: 0;
+    gap: 16px;
+  }
+
+  .hero-stats strong {
+    font-size: 12px;
+  }
+
+  .hero-stats span {
+    font-size: 10px;
+  }
+
+  .hero-mobile-art {
+    flex: 0 0 76px;
+    width: 76px;
+    height: 76px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .hero-mobile-art img {
+    display: block;
+    width: 76px;
+    height: 76px;
+    object-fit: contain;
+    animation: heroGiftFloat 3s ease-in-out infinite;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+    margin: 14px 0 32px;
+  }
+
+  .stat-card {
+    padding: 14px;
+  }
+
+  .stat-card strong {
+    font-size: 18px;
+  }
+
+  .section-heading {
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .section-heading h2 {
+    font-size: clamp(19px, 5vw, 23px);
+  }
+
+  .section-heading p {
+    font-size: 12px;
+  }
+
+  .progress-pill {
+    padding: 8px 10px;
+    font-size: 10px;
+  }
+
+  .rewards-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .reward-card {
+    min-height: 205px;
+    padding: 12px 8px;
+    border-radius: 13px;
+  }
+
+  .reward-art {
+    flex-basis: 88px;
+    height: 88px;
+    margin: 10px 0 6px;
+  }
+
+  .reward-image {
+    max-width: 84px;
+    height: 82px;
+  }
+
+  .reward-amount {
+    font-size: 19px;
+  }
+
+  .reward-button {
+    min-height: 36px;
+    padding: 8px 3px;
+    font-size: 10px;
+  }
+
+  .why-section {
+    gap: 12px;
+    padding: 16px;
+  }
+
+  .why-image,
+  .why-side-image {
+    flex: 0 0 58px;
+    width: 58px;
+    max-width: 58px;
+    max-height: 68px;
+  }
+
+  .why-section h3 {
+    font-size: 14px;
+  }
+
+  .why-section p {
+    font-size: 11px;
+    line-height: 1.6;
+  }
+
+  .trust-image {
+    max-width: 85px;
+    max-height: 65px;
+  }
+
+  .trust-section {
+    gap: 10px;
+    font-size: 12px;
+  }
+
+  .footer {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 18px 0;
+    font-size: 10px;
+  }
+}
+
+/* ---------- Small phones ---------- */
+
+@media (max-width: 380px) {
+  .main-content {
+    width: calc(100% - 22px);
+  }
+
+  .topbar {
+    padding-inline: 3%;
+  }
+
+  .brand {
+    font-size: 13px;
+    gap: 4px;
+  }
+
+  .brand-logo {
+    width: 28px;
+    height: 28px;
+  }
+
+  .nav-right {
+    gap: 5px;
+  }
+
+  .balance {
+    padding: 6px;
+    font-size: 9px;
+  }
+
+  .avatar {
+    width: 27px;
+    height: 27px;
+  }
+
+  .logout-button {
+    padding: 5px 6px;
+    font-size: 11px;
+  }
+
+  .hero {
+    padding: 22px 13px 18px;
+  }
+
+  .hero h1 {
+    font-size: 26px;
+  }
+
+  .hero-stats {
+    gap: 10px;
+  }
+
+  .hero-mobile-art {
+    flex-basis: 64px;
+    width: 64px;
+    height: 64px;
+  }
+
+  .hero-mobile-art img {
+    width: 64px;
+    height: 64px;
+  }
+
+  .section-heading {
+    gap: 6px;
+  }
+
+  .section-heading h2 {
+    font-size: 18px;
+  }
+
+  .progress-pill {
+    padding: 7px;
+    font-size: 9px;
+  }
+
+  .rewards-grid {
+    gap: 8px;
+  }
+
+  .reward-card {
+    min-height: 195px;
+    padding: 10px 6px;
+  }
+
+  .day-label {
+    font-size: 9px;
+  }
+
+  .reward-art {
+    flex-basis: 78px;
+    height: 78px;
+  }
+
+  .reward-image {
+    max-width: 72px;
+    height: 72px;
+  }
+
+  .reward-amount {
+    font-size: 17px;
+  }
+
+  .why-image,
+  .why-side-image {
+    flex-basis: 42px;
+    width: 42px;
+    max-width: 42px;
+  }
+
+  .why-section {
+    gap: 8px;
+    padding: 12px;
+  }
+}
+
+/* ---------- Hero animation ---------- */
+
+@keyframes heroGiftFloat {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-1deg);
+  }
+
+  50% {
+    transform: translateY(-9px) rotate(1deg);
+  }
+}
+
+/* Animate whichever hero artwork is visible */
+@media (min-width: 701px) {
+  .hero-main-image {
+    animation: heroGiftFloat 3s ease-in-out infinite;
+  }
+
+  .hero-mobile-art img {
+    animation: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-main-image,
+  .hero-mobile-art img {
+    animation: none !important;
+  }
+
+  .reward-card {
+    transition: none;
+  }
+}
+
+/* Hover effects only on devices that support hover */
+@media (hover: hover) and (pointer: fine) {
+  .reward-card:hover {
+    transform: translateY(-4px);
+    border-color: rgba(190, 144, 245, 0.55);
+    box-shadow: 0 12px 26px rgba(0, 0, 0, 0.22);
+  }
+
+  .reward-card.is-today:hover {
+    border-color: #f2ce73;
+  }
+
+  .reward-card:hover .reward-image {
+    transform: scale(1.04);
+    transition: transform 220ms ease;
+  }
+
+  .reward-button.claim-button:hover {
+    filter: brightness(1.08);
+  }
+}
+
+/* =========================================
+   VELoop — Premium Hero Polish
+   Add at the END of ResponsiveFix.css
+   ========================================= */
+
+.hero {
+  isolation: isolate;
+  border-color: rgba(190, 151, 245, 0.34);
+  box-shadow:
+    0 18px 45px rgba(0, 0, 0, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.055);
+  transition: border-color 250ms ease, box-shadow 250ms ease;
+}
+
+/* Ambient glow behind the content */
+.hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      circle at 78% 35%,
+      rgba(164, 91, 255, 0.19),
+      transparent 32%
+    ),
+    radial-gradient(
+      circle at 8% 100%,
+      rgba(242, 206, 115, 0.07),
+      transparent 34%
+    );
+}
+
+/* More balanced heading */
+.hero h1 {
+  letter-spacing: -1.4px;
+  text-wrap: balance;
+  text-shadow: 0 3px 24px rgba(0, 0, 0, 0.14);
+}
+
+.hero h1 span {
+  color: var(--vl-gold);
+  text-shadow: 0 0 24px rgba(242, 206, 115, 0.12);
+}
+
+.hero-copy > p {
+  color: rgba(247, 244, 255, 0.76);
+  line-height: 1.8;
+}
+
+/* Current streak and reward journey */
+.hero-stats {
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.hero-stats > div {
+  min-width: 132px;
+  padding: 13px 16px;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 13px;
+  background: rgba(12, 8, 23, 0.28);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.035);
+  transition:
+    background 220ms ease,
+    border-color 220ms ease,
+    transform 220ms ease;
+}
+
+.hero-stats strong {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #fff8e9;
+  font-size: clamp(14px, 1.4vw, 18px);
+  font-weight: 750;
+  line-height: 1.4;
+}
+
+.hero-stats .inline-icon {
+  width: 19px;
+  height: 19px;
+}
+
+.hero-stats span {
+  display: block;
+  margin-top: 5px;
+  color: rgba(226, 215, 243, 0.72);
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+/* Premium lighting around the gift */
+.hero-art-picture {
+  filter: drop-shadow(0 0 30px rgba(154, 79, 255, 0.12));
+}
+
+.hero-main-image {
+  filter: drop-shadow(0 15px 25px rgba(9, 4, 20, 0.3));
+  transform-origin: center;
+  will-change: transform;
+}
+
+.hero-art-label {
+  color: #e9d6ff;
+  font-weight: 600;
+  letter-spacing: 1.8px;
+  text-shadow: 0 0 14px rgba(177, 126, 255, 0.24);
+}
+
+/* Desktop hover polish */
+@media (hover: hover) and (pointer: fine) {
+  .hero:hover {
+    border-color: rgba(190, 151, 245, 0.48);
+    box-shadow:
+      0 22px 52px rgba(0, 0, 0, 0.23),
+      inset 0 1px 0 rgba(255, 255, 255, 0.07);
+  }
+
+  .hero-stats > div:hover {
+    transform: translateY(-2px);
+    border-color: rgba(242, 206, 115, 0.35);
+    background: rgba(35, 23, 51, 0.72);
+  }
+}
+
+/* Mobile: keep the compact layout */
+@media (max-width: 700px) {
+  .hero h1 {
+    letter-spacing: -0.9px;
+    line-height: 1.16;
+  }
+
+  .hero-stats {
+    gap: 8px;
+  }
+
+  .hero-stats > div {
+    min-width: 0;
+    padding: 10px 9px;
+    border-radius: 10px;
+  }
+
+  .hero-stats strong {
+    font-size: 12px;
+  }
+
+  .hero-stats span {
+    font-size: 10px;
+  }
+
+  .hero-mobile-art img {
+    filter: drop-shadow(0 8px 15px rgba(155, 83, 255, 0.24));
+  }
+}
+
+/* Respect accessibility settings */
+@media (prefers-reduced-motion: reduce) {
+  .hero,
+  .hero-stats > div {
+    transition: none;
+  }
+}

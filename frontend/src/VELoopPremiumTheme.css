@@ -1,0 +1,1435 @@
+/* VELoop Rewards — Premium visual layer
+   Import this AFTER App.css and ResponsiveFix.css.
+   Presentation only: does not alter React logic or team-provided assets. */
+
+:root {
+    --vl-bg: #0d0a16;
+    --vl-surface: #171222;
+    --vl-surface-raised: #20182e;
+    --vl-purple: #8e5be8;
+    --vl-purple-soft: #c4a2ff;
+    --vl-gold: #f2ce73;
+    --vl-border: rgba(196, 162, 255, 0.16);
+    --vl-green: #72d6a1;
+}
+
+.streak-app {
+    background:
+        radial-gradient(ellipse at 12% 6%, rgba(110, 57, 163, 0.10), transparent 28rem),
+        radial-gradient(ellipse at 90% 40%, rgba(85, 44, 133, 0.08), transparent 34rem),
+        var(--vl-bg);
+    color: #f8f5ff;
+}
+
+/* Navigation */
+.topbar {
+    position: relative;
+    z-index: 5;
+    background: rgba(20, 15, 31, 0.92);
+    border-bottom: 1px solid rgba(196, 162, 255, 0.12);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+    backdrop-filter: blur(16px);
+}
+
+.brand {
+    letter-spacing: -0.35px;
+}
+
+.balance {
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07);
+}
+
+/* Hero: cinematic atmosphere without changing the gift artwork */
+.hero {
+    position: relative;
+    isolation: isolate;
+    border: 1px solid rgba(196, 162, 255, 0.28);
+    background:
+        radial-gradient(ellipse at 78% 46%, rgba(156, 81, 231, 0.28), transparent 36%),
+        radial-gradient(ellipse at 8% 100%, rgba(242, 206, 115, 0.08), transparent 34%),
+        linear-gradient(112deg, #21152f 0%, #342044 47%, #21152f 100%);
+    box-shadow:
+        0 24px 60px rgba(0, 0, 0, 0.22),
+        inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+.hero::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background:
+        linear-gradient(115deg, transparent 15%, rgba(255, 255, 255, 0.025) 48%, transparent 70%),
+        radial-gradient(circle at 78% 50%, rgba(185, 128, 255, 0.12), transparent 24%);
+}
+
+.hero::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 1px;
+    pointer-events: none;
+    background: linear-gradient(90deg, transparent, rgba(242, 206, 115, 0.38), transparent);
+}
+
+.hero h1 {
+    letter-spacing: -1.7px;
+    text-wrap: balance;
+    text-shadow: 0 5px 28px rgba(0, 0, 0, 0.2);
+}
+
+.hero h1 span {
+    color: var(--vl-gold);
+    text-shadow: 0 0 28px rgba(242, 206, 115, 0.12);
+}
+
+.hero-copy>p {
+    color: rgba(242, 235, 255, 0.72);
+}
+
+.hero-art-picture {
+    filter: drop-shadow(0 0 28px rgba(156, 81, 231, 0.17));
+}
+
+.hero-main-image {
+    filter: drop-shadow(0 18px 26px rgba(7, 3, 15, 0.35));
+}
+
+.hero-art-label {
+    color: #e4d1ff;
+    font-weight: 700;
+    text-shadow: 0 0 18px rgba(177, 126, 255, 0.28);
+}
+
+/* Hero mini-stat panels */
+.hero-stats>div {
+    min-width: 132px;
+    padding: 12px 15px;
+    border: 1px solid rgba(220, 199, 255, 0.12);
+    border-radius: 13px;
+    background: rgba(12, 8, 21, 0.36);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.035);
+    transition: transform 220ms ease, border-color 220ms ease, background 220ms ease;
+}
+
+.hero-stats strong {
+    color: #fff8e8;
+    font-weight: 800;
+}
+
+.hero-stats span {
+    color: rgba(222, 210, 239, 0.68);
+}
+
+/* Summary stats */
+.stats-grid {
+    gap: 15px;
+}
+
+.stat-card {
+    position: relative;
+    overflow: hidden;
+    background:
+        radial-gradient(circle at 0% 0%, rgba(147, 91, 218, 0.09), transparent 65%),
+        linear-gradient(145deg, #1b1528, #15101f);
+    border: 1px solid rgba(196, 162, 255, 0.13);
+    border-radius: 17px;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.025);
+    transition: transform 220ms ease, border-color 220ms ease, box-shadow 220ms ease;
+}
+
+.stat-icon {
+    background: linear-gradient(145deg, #33234b, #251a38);
+    border: 1px solid rgba(196, 162, 255, 0.12);
+}
+
+/* Rewards heading and progress */
+.section-heading {
+    margin-bottom: 26px;
+}
+
+.section-heading h2 {
+    letter-spacing: -0.9px;
+}
+
+.progress-pill {
+    background: linear-gradient(135deg, rgba(242, 206, 115, 0.12), rgba(142, 91, 232, 0.12));
+    border-color: rgba(242, 206, 115, 0.25);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.035);
+}
+
+/* Reward cards: clear states, stronger depth, unchanged artwork */
+.reward-card {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    background:
+        radial-gradient(circle at 50% 18%, rgba(146, 82, 206, 0.16), transparent 56%),
+        linear-gradient(160deg, #21182f 0%, #15101f 100%);
+    border: 1px solid rgba(196, 162, 255, 0.15);
+    border-radius: 17px;
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.025);
+    transition: transform 240ms ease, border-color 240ms ease, box-shadow 240ms ease;
+}
+
+.reward-card::before {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    top: 0;
+    left: 12%;
+    right: 12%;
+    height: 2px;
+    border-radius: 0 0 4px 4px;
+    background: linear-gradient(90deg, transparent, rgba(196, 162, 255, 0.75), transparent);
+    opacity: 0;
+    transition: opacity 240ms ease;
+}
+
+.reward-card.is-claimed {
+    border-color: rgba(114, 214, 161, 0.48);
+    background:
+        radial-gradient(circle at 50% 18%, rgba(62, 183, 127, 0.12), transparent 58%),
+        linear-gradient(160deg, #1b2429, #15151f);
+}
+
+.reward-card.is-today {
+    border-color: rgba(242, 206, 115, 0.78);
+    background:
+        radial-gradient(circle at 50% 20%, rgba(242, 186, 72, 0.2), transparent 58%),
+        linear-gradient(160deg, #30213f, #1b1427);
+    box-shadow: 0 0 0 1px rgba(242, 206, 115, 0.08), 0 14px 34px rgba(150, 96, 38, 0.09);
+}
+
+.reward-card.is-today::before {
+    opacity: 1;
+    background: linear-gradient(90deg, transparent, var(--vl-gold), transparent);
+}
+
+.reward-image {
+    filter: drop-shadow(0 8px 12px rgba(0, 0, 0, 0.16));
+    transition: transform 260ms ease, filter 260ms ease;
+}
+
+.reward-amount {
+    font-weight: 800;
+    letter-spacing: -0.35px;
+    text-shadow: 0 0 22px rgba(242, 206, 115, 0.08);
+}
+
+.reward-button {
+    border-radius: 9px;
+    transition: filter 180ms ease, transform 180ms ease, border-color 180ms ease;
+}
+
+.reward-button.claim-button {
+    background: linear-gradient(105deg, #f6d986, #e7b957);
+    box-shadow: 0 5px 16px rgba(215, 166, 71, 0.12);
+}
+
+/* Supporting panel and footer */
+.why-section {
+    background:
+        radial-gradient(circle at 0% 50%, rgba(155, 105, 235, 0.15), transparent 48%),
+        linear-gradient(135deg, rgba(255, 255, 255, 0.075), rgba(111, 65, 165, 0.07)),
+        rgba(24, 17, 38, 0.78);
+    border: 1px solid rgba(196, 162, 255, 0.24);
+    border-radius: 22px;
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.06),
+        0 12px 32px rgba(0, 0, 0, 0.18);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    transition: border-color 220ms ease, box-shadow 220ms ease;
+}
+
+.footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 12px;
+    padding: 22px 0;
+
+    border-top: 1px solid rgba(196, 162, 255, 0.22);
+    color: #ad9bc5;
+    font-size: 12px;
+}
+
+.footer span:last-child {
+    color: #d1bde9;
+    letter-spacing: 0.2px;
+}
+
+/* Hover effects only where a mouse/trackpad is available */
+@media (hover: hover) and (pointer: fine) {
+    .why-section:hover {
+        border-color: rgba(196, 162, 255, 0.42);
+        box-shadow:
+            inset 0 1px 0 rgba(255, 255, 255, 0.08),
+            0 16px 38px rgba(111, 65, 165, 0.2);
+    }
+
+    .hero-stats>div:hover {
+        transform: translateY(-3px);
+        border-color: rgba(242, 206, 115, 0.32);
+        background: rgba(30, 21, 44, 0.78);
+    }
+
+    .stat-card:hover {
+        transform: translateY(-3px);
+        border-color: rgba(196, 162, 255, 0.28);
+        box-shadow: 0 16px 34px rgba(0, 0, 0, 0.2);
+    }
+
+    .reward-card:hover {
+        transform: translateY(-5px);
+        border-color: rgba(196, 162, 255, 0.42);
+        box-shadow: 0 18px 34px rgba(0, 0, 0, 0.24), 0 0 24px rgba(142, 91, 232, 0.08);
+    }
+
+    .reward-card.is-today:hover {
+        border-color: var(--vl-gold);
+    }
+
+    .reward-card:hover::before {
+        opacity: 1;
+    }
+
+    .reward-card:hover .reward-image {
+        transform: translateY(-3px) scale(1.045);
+        filter: drop-shadow(0 12px 16px rgba(0, 0, 0, 0.22));
+    }
+
+    .reward-button.claim-button:hover {
+        filter: brightness(1.06);
+        transform: translateY(-1px);
+    }
+}
+
+/* Responsive safeguards */
+@media (max-width: 700px) {
+    .hero {
+        background:
+            radial-gradient(ellipse at 85% 15%, rgba(156, 81, 231, 0.2), transparent 38%),
+            radial-gradient(ellipse at 5% 100%, rgba(242, 206, 115, 0.055), transparent 38%),
+            linear-gradient(145deg, #241631, #1b1227);
+    }
+
+    .hero-stats>div {
+        min-width: 0;
+        padding: 10px 9px;
+    }
+
+    .stats-grid {
+        gap: 10px;
+    }
+
+    .reward-card {
+        border-radius: 14px;
+    }
+
+    .why-section {
+        border-radius: 15px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+    .hero,
+    .hero-stats>div,
+    .stat-card,
+    .reward-card,
+    .reward-card::before,
+    .reward-image,
+    .reward-button {
+        transition: none !important;
+    }
+
+    .hero-art-picture,
+    .hero-main-image,
+    .hero-mobile-art img {
+        animation: none !important;
+        will-change: auto;
+    }
+
+    .hero-stats>div:hover,
+    .stat-card:hover,
+    .reward-card:hover,
+    .reward-card:hover .reward-image {
+        transform: none !important;
+    }
+}
+
+/* Restore reward gift card hover lift */
+.reward-card {
+    transition:
+        transform 0.3s ease,
+        box-shadow 0.3s ease,
+        border-color 0.3s ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+    .reward-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 18px 35px rgba(70, 35, 130, 0.18);
+    }
+}
+
+/* Final reward card hover effect */
+.reward-card {
+    transition:
+        transform 0.3s ease,
+        box-shadow 0.3s ease,
+        border-color 0.3s ease !important;
+}
+
+@media (hover: hover) and (pointer: fine) {
+    .reward-card:hover {
+        transform: translateY(-12px) !important;
+        box-shadow: 0 18px 35px rgba(70, 35, 130, 0.3);
+        border-color: rgba(196, 162, 255, 0.65);
+        outline: none !important;
+    }
+}
+
+/* =========================================
+   VELoop — Premium Dashboard Stats
+   ========================================= */
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 20px;
+    margin-block: 24px;
+}
+
+.stats-grid .stat-card {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    min-height: 172px;
+    padding: 28px;
+    border: 1px solid rgba(191, 160, 255, 0.2);
+    border-radius: 22px;
+    background: linear-gradient(145deg, #251932, #17111f);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.16);
+    transition: transform 280ms ease,
+        box-shadow 280ms ease,
+        border-color 280ms ease;
+}
+
+/* Soft atmospheric glow */
+.stats-grid .stat-card::before {
+    content: "";
+    position: absolute;
+    width: 200px;
+    height: 200px;
+    top: -115px;
+    right: -70px;
+    border-radius: 50%;
+    background: rgba(160, 102, 255, 0.14);
+    filter: blur(35px);
+    pointer-events: none;
+    z-index: -1;
+}
+
+.stats-grid .stat-card:nth-child(2) {
+    background: linear-gradient(145deg, #291d2b, #19121f);
+    border-color: rgba(255, 157, 91, 0.22);
+}
+
+.stats-grid .stat-card:nth-child(2)::before {
+    background-color: rgba(255, 132, 65, 0.2);
+}
+
+.stats-grid .stat-card:nth-child(3) {
+    background: linear-gradient(145deg, #2a2130, #19131f);
+    border-color: rgba(255, 208, 110, 0.28);
+}
+
+.stats-grid .stat-card:nth-child(3)::before {
+    background-color: rgba(255, 203, 91, 0.2);
+}
+
+/* Accent line */
+.stats-grid .stat-card::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 24px;
+    right: 24px;
+    height: 2px;
+    background: linear-gradient(90deg,
+            transparent,
+            rgba(195, 157, 255, 0.8),
+            transparent);
+}
+
+.stats-grid .stat-card:nth-child(2)::after {
+    background: linear-gradient(90deg, transparent, #ff995e, transparent);
+}
+
+.stats-grid .stat-card:nth-child(3)::after {
+    background: linear-gradient(90deg, transparent, #f6cf75, transparent);
+}
+
+/* Icons */
+.stats-grid .stat-icon {
+    border: 1px solid rgba(197, 159, 255, 0.25);
+    border-radius: 16px;
+    background: rgba(145, 91, 224, 0.14);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
+}
+
+/* Labels and numbers */
+.stats-grid .stat-card strong {
+    color: #fff;
+    font-size: clamp(26px, 2.2vw, 34px);
+    font-weight: 800;
+    letter-spacing: -0.8px;
+}
+
+.stats-grid .stat-card:hover {
+    transform: translateY(-7px);
+    border-color: rgba(198, 159, 255, 0.55);
+    box-shadow: 0 22px 45px rgba(0, 0, 0, 0.3);
+}
+
+.stats-grid .stat-card:nth-child(2):hover {
+    border-color: rgba(255, 157, 91, 0.55);
+}
+
+.stats-grid .stat-card:nth-child(3):hover {
+    border-color: rgba(255, 208, 110, 0.55);
+}
+
+/* Mobile and tablet */
+@media (max-width: 900px) {
+    .stats-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 14px;
+    }
+}
+
+@media (max-width: 600px) {
+    .stats-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+
+    .stats-grid .stat-card {
+        min-height: 125px;
+        padding: 20px;
+        border-radius: 17px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .stats-grid .stat-card {
+        transition: none;
+    }
+
+    .stats-grid .stat-card:hover {
+        transform: none;
+    }
+}
+
+/* VELoop — blended 3D-style stat card backgrounds */
+
+.stats-grid .stat-card {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+}
+
+/* Keep existing text and icons above the decorative background */
+.stats-grid .stat-card>* {
+    position: relative;
+    z-index: 1;
+}
+
+/* Purple ambient glow — Total Rewards */
+.stats-grid .stat-card-rewards {
+    background:
+        radial-gradient(ellipse at 100% 110%,
+            rgba(151, 72, 255, 0.36),
+            transparent 54%),
+        linear-gradient(145deg, #251932, #17111f);
+}
+
+/* Warm flame glow — Checked In */
+.stats-grid .stat-card-checkins {
+    background:
+        radial-gradient(ellipse at 100% 110%,
+            rgba(255, 105, 47, 0.27),
+            transparent 53%),
+        linear-gradient(145deg, #291c29, #19121f);
+}
+
+/* Golden ambient glow — Next Reward */
+.stats-grid .stat-card-next-reward {
+    background:
+        radial-gradient(ellipse at 100% 110%,
+            rgba(255, 185, 55, 0.3),
+            transparent 53%),
+        linear-gradient(145deg, #2a2130, #19131f);
+}
+
+/* Soft light bloom */
+.stats-grid .stat-card-rewards::after,
+.stats-grid .stat-card-checkins::after,
+.stats-grid .stat-card-next-reward::after {
+    content: "";
+    position: absolute;
+    width: 150px;
+    height: 150px;
+    right: -45px;
+    bottom: -75px;
+    border-radius: 50%;
+    filter: blur(32px);
+    pointer-events: none;
+    z-index: 0;
+}
+
+.stats-grid .stat-card-rewards::after {
+    background: rgba(157, 85, 255, 0.22);
+}
+
+.stats-grid .stat-card-checkins::after {
+    background: rgba(255, 116, 60, 0.18);
+}
+
+.stats-grid .stat-card-next-reward::after {
+    background: rgba(255, 195, 70, 0.2);
+}
+
+.stats-grid .stat-card-rewards::before,
+.stats-grid .stat-card-checkins::before,
+.stats-grid .stat-card-next-reward::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+
+    background-image: var(--card-art);
+    background-repeat: no-repeat;
+    background-position: right center;
+    background-size: auto 100%;
+}
+
+.stats-grid .stat-card-rewards,
+.stats-grid .stat-card-checkins,
+.stats-grid .stat-card-next-reward {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+}
+
+.stats-grid .stat-card>* {
+    position: relative;
+    z-index: 1;
+}
+
+
+/* Refine only the Next Reward card */
+.stats-grid .stat-card-next-reward>.stat-card-art {
+    object-fit: cover;
+    object-position: 65% center;
+    opacity: 0.42;
+}
+
+/* Keep the reward amount readable */
+.stats-grid .stat-card-next-reward .stat-card-content {
+    position: relative;
+    z-index: 2;
+    max-width: 72%;
+}
+
+.stats-grid .stat-card-next-reward .stat-card-content>span,
+.stats-grid .stat-card-next-reward .stat-card-content>strong,
+.stats-grid .stat-card-next-reward .stat-countdown {
+    position: relative;
+    z-index: 2;
+    text-shadow: 0 2px 8px rgba(15, 8, 22, 0.8);
+}
+
+/* Keep the coin icon above the background */
+.stats-grid .stat-card-next-reward>.stat-icon {
+    position: relative;
+    z-index: 2;
+}
+
+/* Make Next Reward countdown clearly readable */
+.stats-grid .stat-card-next-reward .stat-countdown {
+    display: inline-block !important;
+    width: fit-content;
+    margin-top: 12px !important;
+    padding: 7px 11px;
+    border-radius: 8px;
+
+    color: #fff4cf !important;
+    background: rgba(22, 12, 30, 0.82);
+    border: 1px solid rgba(255, 211, 105, 0.38);
+
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.4;
+    letter-spacing: 0.2px;
+
+    text-shadow: none !important;
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.18);
+}
+
+/* Make stat card labels brighter and sharper */
+.stats-grid .stat-card-content>span {
+    color: #ffffff !important;
+    font-size: 14px;
+    font-weight: 600;
+    opacity: 1 !important;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.65);
+}
+
+/* Keep the main values crisp */
+.stats-grid .stat-card-content>strong {
+    color: #ffffff !important;
+    font-weight: 750;
+    opacity: 1 !important;
+    text-shadow: 0 2px 5px rgba(0, 0, 0, 0.45);
+}
+
+.hero-art .hero-decoration-right {
+    display: none;
+}
+
+/* VELoop premium page background */
+.streak-app {
+    background-color: #0c0712;
+    background-image:
+        linear-gradient(rgba(12, 7, 18, 0.28),
+            rgba(12, 7, 18, 0.38)),
+        url("/src/assets/velop-background.png");
+    background-size: cover;
+    background-position: center top;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+}
+
+/* VELoop profile avatar dropdown */
+.nav-right {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.profile-menu {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+}
+
+.profile-menu-trigger {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border: 1px solid rgba(220, 190, 255, 0.38);
+    cursor: pointer;
+    font: inherit;
+    color: #fff;
+    transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+}
+
+.profile-menu-trigger:hover,
+.profile-menu-trigger[aria-expanded="true"] {
+    transform: translateY(-1px);
+    border-color: rgba(220, 190, 255, 0.8);
+    box-shadow: 0 0 0 4px rgba(151, 91, 218, 0.14);
+}
+
+.profile-dropdown {
+    position: absolute;
+    top: calc(100% + 12px);
+    right: 0;
+    z-index: 1000;
+    width: 224px;
+    padding: 10px;
+    border: 1px solid rgba(204, 172, 240, 0.2);
+    border-radius: 15px;
+    background: rgba(25, 17, 35, 0.97);
+    color: #fff;
+    box-shadow: 0 18px 45px rgba(0, 0, 0, 0.38);
+    backdrop-filter: blur(18px);
+    animation: profileDropdownIn 150ms ease-out;
+}
+
+.profile-dropdown-heading {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 7px 10px;
+    min-width: 0;
+}
+
+.profile-dropdown-avatar {
+    display: inline-flex;
+    flex: 0 0 38px;
+    width: 38px;
+    height: 38px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #8950c7, #56328b);
+    color: #fff;
+    font-weight: 700;
+}
+
+.profile-dropdown-account {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: 3px;
+    min-width: 0;
+}
+
+.profile-dropdown-account strong {
+    color: #fff;
+    font-size: 13px;
+    font-weight: 650;
+}
+
+.profile-dropdown-account small {
+    overflow: hidden;
+    color: #c5b7d4;
+    font-size: 11px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.profile-dropdown-divider {
+    height: 1px;
+    margin: 2px 0 7px;
+    background: rgba(215, 190, 240, 0.13);
+}
+
+.profile-dropdown-logout {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 9px;
+    border: 0;
+    border-radius: 9px;
+    background: transparent;
+    color: #ffb2b2;
+    font: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    text-align: left;
+    cursor: pointer;
+    transition: background 150ms ease, color 150ms ease;
+}
+
+.profile-dropdown-logout:hover {
+    background: rgba(255, 100, 120, 0.11);
+    color: #ffd0d0;
+}
+
+.profile-dropdown-logout svg {
+    width: 17px;
+    height: 17px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+@keyframes profileDropdownIn {
+    from {
+        opacity: 0;
+        transform: translateY(-5px) scale(0.98);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+@media (max-width: 520px) {
+    .nav-right {
+        gap: 9px;
+    }
+
+    .profile-dropdown {
+        right: -4px;
+        width: 210px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .profile-dropdown {
+        animation: none;
+    }
+
+    .profile-menu-trigger,
+    .profile-dropdown-logout {
+        transition: none;
+    }
+}
+
+
+/* VELoop stat-card artwork — final */
+.stats-grid .stat-card-rewards,
+.stats-grid .stat-card-checkins,
+.stats-grid .stat-card-next-reward {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+}
+
+.stats-grid .stat-card-rewards::before,
+.stats-grid .stat-card-checkins::before,
+.stats-grid .stat-card-next-reward::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background-image: var(--card-art);
+    background-repeat: no-repeat;
+    background-position: right center;
+    background-size: auto 115%;
+    opacity: 0.85;
+}
+
+.stats-grid .stat-card>* {
+    position: relative;
+    z-index: 1;
+}
+
+.stats-grid .stat-card-next-reward>div {
+    max-width: 72%;
+}
+
+@media (max-width: 600px) {
+
+    .stats-grid .stat-card-rewards::before,
+    .stats-grid .stat-card-checkins::before,
+    .stats-grid .stat-card-next-reward::before {
+        background-size: auto 100%;
+        opacity: 0.7;
+    }
+}
+
+/* FINAL: stat artwork with clear, readable text */
+
+.stats-grid .stat-card.stat-card-rewards,
+.stats-grid .stat-card.stat-card-checkins,
+.stats-grid .stat-card.stat-card-next-reward {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+}
+
+/* Fade artwork toward the text area, not over the text */
+.stats-grid .stat-card.stat-card-rewards::before,
+.stats-grid .stat-card.stat-card-checkins::before,
+.stats-grid .stat-card.stat-card-next-reward::before {
+    content: "" !important;
+    position: absolute !important;
+    inset: 0 !important;
+    width: auto !important;
+    height: auto !important;
+    top: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    left: 0 !important;
+
+    border-radius: inherit;
+    filter: none !important;
+    pointer-events: none;
+    z-index: 0 !important;
+
+    background-image: var(--card-art) !important;
+    background-repeat: no-repeat !important;
+
+    background-position: right center !important;
+    background-size: auto 100% !important;
+
+
+    opacity: 1 !important;
+
+    -webkit-mask-image: linear-gradient(to right,
+            transparent 0%,
+            rgba(0, 0, 0, 0.18) 28%,
+            #000 65%) !important;
+
+    mask-image: linear-gradient(to right,
+            transparent 0%,
+            rgba(0, 0, 0, 0.18) 28%,
+            #000 65%) !important;
+}
+
+/* Keep card content above the artwork */
+.stats-grid .stat-card>.stat-icon,
+.stats-grid .stat-card>div {
+    position: relative;
+    z-index: 2;
+}
+
+/* Improve label contrast */
+.stats-grid .stat-card>div>span {
+    color: #f0e5ff !important;
+    font-size: 12px;
+    font-weight: 600;
+    text-shadow: 0 1px 4px rgba(10, 5, 18, 0.85);
+}
+
+/* Crisp white reward values */
+.stats-grid .stat-card>div>strong {
+    color: #fff !important;
+    font-weight: 800;
+    text-shadow: 0 2px 5px rgba(10, 5, 18, 0.65);
+}
+
+/* Clear countdown */
+.stats-grid .stat-card>div>small {
+    color: #ffe08a !important;
+    font-weight: 600;
+    text-shadow: 0 1px 4px rgba(10, 5, 18, 0.9);
+}
+
+/* Preserve the Next Reward text width */
+.stats-grid .stat-card-next-reward>div {
+    max-width: 72%;
+}
+
+@media (max-width: 600px) {
+
+    .stats-grid .stat-card.stat-card-rewards::before,
+    .stats-grid .stat-card.stat-card-checkins::before,
+    .stats-grid .stat-card.stat-card-next-reward::before {
+        background-size: auto 110% !important;
+    }
+}
+
+
+/* Make the Next Reward countdown readable over bright artwork */
+.stats-grid .stat-card-next-reward .stat-countdown {
+    display: inline-block !important;
+    width: fit-content;
+    max-width: 100%;
+    margin-top: 12px !important;
+    padding: 7px 11px;
+    border-radius: 8px;
+
+    color: #fff4cf !important;
+    background: rgba(22, 12, 30, 0.88) !important;
+    border: 1px solid rgba(255, 211, 105, 0.5);
+
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1.4;
+    letter-spacing: 0.2px;
+    white-space: normal;
+
+    opacity: 1 !important;
+    text-shadow: none !important;
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.25);
+}
+
+/* Align content consistently across all three stat cards */
+.stats-grid .stat-card {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+/* Keep the icon fixed and aligned */
+.stats-grid .stat-card>.stat-icon {
+    position: relative;
+    z-index: 2;
+    flex: 0 0 44px;
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    align-self: center;
+}
+
+/* Keep text in a consistent vertical group */
+.stats-grid .stat-card>div {
+    position: relative;
+    z-index: 2;
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 5px;
+}
+
+/* Consistent label alignment */
+.stats-grid .stat-card>div>span {
+    display: block;
+    margin: 0;
+    line-height: 1.3;
+}
+
+/* Consistent value alignment */
+.stats-grid .stat-card>div>strong {
+    display: block;
+    margin: 0;
+    line-height: 1.2;
+}
+
+/* Keep countdown directly beneath the reward value */
+.stats-grid .stat-card-next-reward .stat-countdown {
+    align-self: flex-start;
+    margin: 8px 0 0 !important;
+}
+
+/* Give the Next Reward card enough text space */
+.stats-grid .stat-card-next-reward>div {
+    max-width: 72%;
+}
+
+@media (max-width: 600px) {
+    .stats-grid .stat-card {
+        gap: 12px;
+    }
+
+    .stats-grid .stat-card-next-reward>div {
+        max-width: 100%;
+    }
+}
+
+/* Add subtle depth to the empty center of the hero */
+.hero {
+    isolation: isolate;
+    overflow: visible;
+}
+
+.hero::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+
+    background:
+        radial-gradient(ellipse at 58% 55%,
+            rgba(164, 91, 235, 0.15),
+            transparent 32%),
+        linear-gradient(105deg,
+            transparent 38%,
+            rgba(255, 218, 143, 0.055) 52%,
+            transparent 68%);
+}
+
+/* ==========================================
+   VELoop Mystery Reward Orb
+   ========================================== */
+
+.mystery-orb-stage {
+    position: relative;
+    z-index: 3;
+    flex: 0 0 150px;
+    min-width: 0;
+    align-self: stretch;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.mystery-orb-button {
+    position: relative;
+    isolation: isolate;
+    flex: 0 0 auto;
+
+    display: grid;
+    place-items: center;
+
+    width: 140px;
+    height: 140px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    cursor: pointer;
+
+    animation: mysteryOrbFloat 4s ease-in-out infinite;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.mystery-orb-button::before,
+.mystery-orb-button::after {
+    content: "";
+    position: absolute;
+    inset: 4px;
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+.mystery-orb-button::before {
+    border: 1px solid rgba(242, 206, 115, 0.75);
+    box-shadow:
+        0 0 12px rgba(177, 104, 255, 0.35),
+        inset 0 0 12px rgba(177, 104, 255, 0.12);
+    animation: mysteryOrbSpin 12s linear infinite;
+}
+
+.mystery-orb-button::after {
+    inset: 12px;
+    border: 1px dashed rgba(202, 160, 255, 0.62);
+    transform: rotate(-25deg);
+    transition: border-color 220ms ease;
+}
+
+.mystery-orb-core {
+    position: relative;
+    z-index: 1;
+
+    display: grid;
+    place-items: center;
+
+    width: 96px;
+    height: 96px;
+    border: 1px solid rgba(255, 225, 155, 0.75);
+    border-radius: 50%;
+
+    background:
+        radial-gradient(circle at 34% 25%,
+            rgba(255, 225, 164, 0.9),
+            transparent 15%),
+        radial-gradient(circle at 35% 28%,
+            #9d5bfa 0%,
+            #5a248f 42%,
+            #241136 78%);
+
+    box-shadow:
+        0 0 18px rgba(165, 88, 255, 0.48),
+        0 0 34px rgba(165, 88, 255, 0.2),
+        inset 0 0 18px rgba(255, 223, 153, 0.18);
+
+    transition:
+        transform 300ms ease,
+        box-shadow 300ms ease;
+}
+
+.mystery-orb-question {
+    color: #fff0bd;
+    font-size: 36px;
+    font-weight: 800;
+    line-height: 1;
+    text-shadow: 0 0 16px rgba(255, 210, 106, 0.8);
+}
+
+.mystery-orb-spark {
+    position: absolute;
+    z-index: 2;
+    color: #ffe6a0;
+    pointer-events: none;
+    text-shadow: 0 0 12px rgba(255, 210, 106, 0.9);
+    animation: mysteryOrbSparkle 2.2s ease-in-out infinite;
+}
+
+.mystery-orb-spark.spark-one {
+    top: 2px;
+    right: 14px;
+    font-size: 18px;
+}
+
+.mystery-orb-spark.spark-two {
+    bottom: 12px;
+    left: 1px;
+    color: #e2b9ff;
+    font-size: 21px;
+    animation-delay: -0.7s;
+}
+
+.mystery-orb-spark.spark-three {
+    top: 25px;
+    left: 0;
+    font-size: 12px;
+    animation-delay: -1.2s;
+}
+
+.mystery-orb-caption {
+    color: #f2ce73;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 1.4px;
+    text-align: center;
+    white-space: nowrap;
+    text-shadow: 0 0 12px rgba(242, 206, 115, 0.18);
+}
+
+.mystery-orb-button:focus-visible {
+    outline: 2px solid #ffe6a0;
+    outline-offset: 6px;
+}
+
+.mystery-orb-button.is-open .mystery-orb-core {
+    transform: scale(1.08);
+    box-shadow:
+        0 0 24px rgba(165, 88, 255, 0.65),
+        0 0 42px rgba(242, 206, 115, 0.22),
+        inset 0 0 20px rgba(255, 223, 153, 0.25);
+}
+
+.mystery-orb-button.is-open::after {
+    border-color: #ffe6a0;
+}
+
+/* Reward reveal panel */
+.mystery-reveal {
+    position: absolute;
+    z-index: 10;
+    top: calc(50% + 20px);
+    left: 50%;
+    width: 224px;
+    max-width: min(224px, calc(100vw - 40px));
+    padding: 16px;
+
+    border: 1px solid rgba(242, 206, 115, 0.45);
+    border-radius: 15px;
+    background:
+        radial-gradient(circle at 90% 0%,
+            rgba(142, 91, 232, 0.22),
+            transparent 48%),
+        rgba(24, 16, 37, 0.97);
+
+    box-shadow:
+        0 16px 40px rgba(0, 0, 0, 0.4),
+        0 0 22px rgba(142, 91, 232, 0.14);
+
+    text-align: center;
+    transform: translateX(-50%);
+    animation: mysteryRevealIn 220ms ease-out both;
+    backdrop-filter: blur(14px);
+}
+
+.mystery-reveal-eyebrow {
+    display: block;
+    margin-bottom: 8px;
+    color: #f2ce73;
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: 1.4px;
+}
+
+.mystery-reveal>strong {
+    display: block;
+    color: #fff7e5;
+    font-size: 17px;
+    line-height: 1.35;
+    overflow-wrap: anywhere;
+}
+
+.mystery-reveal>p {
+    margin: 8px 0 12px;
+    color: #d7c9e9;
+    font-size: 11px;
+    line-height: 1.55;
+}
+
+.mystery-reveal-close {
+    padding: 6px 13px;
+    border: 1px solid rgba(196, 162, 255, 0.28);
+    border-radius: 8px;
+    background: rgba(142, 91, 232, 0.16);
+    color: #fff;
+    font-size: 11px;
+    cursor: pointer;
+}
+
+.mystery-reveal-close:hover {
+    background: rgba(142, 91, 232, 0.3);
+}
+
+@keyframes mysteryOrbFloat {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-7px);
+    }
+}
+
+@keyframes mysteryOrbSpin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes mysteryOrbSparkle {
+
+    0%,
+    100% {
+        opacity: 0.45;
+        scale: 0.85;
+    }
+
+    50% {
+        opacity: 1;
+        scale: 1.2;
+    }
+}
+
+@keyframes mysteryRevealIn {
+    from {
+        opacity: 0;
+        translate: 0 -6px;
+    }
+
+    to {
+        opacity: 1;
+        translate: 0 0;
+    }
+}
+
+/* Keep the current mobile hero layout unchanged */
+@media (max-width: 1099px) {
+    .mystery-orb-stage {
+        display: none;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+    .mystery-orb-button,
+    .mystery-orb-button::before,
+    .mystery-orb-spark,
+    .mystery-reveal {
+        animation: none !important;
+        transition: none !important;
+    }
+}
+
+.mystery-orb-question img {
+    width: 48px;
+    height: 48px;
+    object-fit: contain;
+    border-radius: 50%;
+    display: block;
+}
