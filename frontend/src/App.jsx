@@ -68,6 +68,10 @@ function App() {
 
   const [claimed, setClaimed] = useState(false);
   const [walletBalance, setWalletBalance] = useState(0);
+  const [isRewardHistoryOpen, setIsRewardHistoryOpen] = useState(false);
+  const [rewardHistory, setRewardHistory] = useState([]);
+  const [historyLoading, setHistoryLoading] = useState(false);
+  const [historyError, setHistoryError] = useState('');
   const [streakStatus, setStreakStatus] = useState(null);
   const [statusLoading, setStatusLoading] = useState(false);
   const [claimLoading, setClaimLoading] = useState(false);
@@ -213,6 +217,70 @@ function App() {
     },
     [token]
   );
+
+  const openRewardHistory = async () => {
+    setShowRewardHistory(true);
+    setHistoryLoading(true);
+    setHistoryError('');
+
+    try {
+      const response = await axios.get(
+        `${API_URL}/daily-streak/history`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      setRewardHistory(
+        Array.isArray(response.data.claims)
+          ? response.data.claims
+          : []
+      );
+    } catch (err) {
+      console.error('Failed to fetch reward history:', err);
+      setHistoryError(
+        err.response?.data?.message ||
+        'Unable to load reward history. Please try again.'
+      );
+    } finally {
+      setHistoryLoading(false);
+    }
+  };
+
+
+  const fetchRewardHistory = async () => {
+    if (!token) return;
+
+    setHistoryLoading(true);
+    setHistoryError('');
+
+    try {
+      const response = await axios.get(
+        `${API_URL}/daily-streak/history`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      setRewardHistory(
+        Array.isArray(response.data.claims)
+          ? response.data.claims
+          : []
+      );
+    } catch (err) {
+      console.error('Failed to fetch reward history:', err);
+      setHistoryError(
+        err.response?.data?.message ||
+        'Could not load reward history. Please try again.'
+      );
+    } finally {
+      setHistoryLoading(false);
+    }
+  };
 
   // Fetch streak status and determine whether today's reward was claimed.
   const fetchStreakStatus = useCallback(
@@ -655,14 +723,25 @@ function App() {
             </a>
 
             <div className="nav-right">
-              <span className="balance">
+              <button
+                type="button"
+                className="balance wallet-history-trigger"
+                onClick={async () => {
+                  setIsRewardHistoryOpen(true);
+                  await fetchRewardHistory();
+                }}
+                aria-label={`View reward history. Wallet balance: ${walletBalance} VEs`}
+              >
                 <img
                   src={vesCoin}
                   alt=""
                   className="balance-coin"
                 />
                 {walletBalance} VEs
-              </span>
+                <span className="wallet-history-arrow" aria-hidden="true">
+                  ↗
+                </span>
+              </button>
 
               <div className="profile-menu" ref={profileMenuRef}>
                 <button
@@ -1069,6 +1148,116 @@ function App() {
 
             </footer>
           </main>
+
+
+
+          {/* Reward History Modal */}
+          {isRewardHistoryOpen && (
+            <div
+              className="reward-history-overlay"
+              onClick={(event) => {
+                if (event.target === event.currentTarget) {
+                  setIsRewardHistoryOpen(false);
+                }
+              }}
+            >
+              <section
+                className="reward-history-modal"
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="reward-history-title"
+              >
+                <header className="reward-history-header">
+                  <div>
+                    <span className="eyebrow">YOUR REWARDS</span>
+                    <h2 id="reward-history-title">Reward History</h2>
+                    <p>Your claimed daily streak rewards.</p>
+                  </div>
+
+                  <button
+                    type="button"
+                    className="reward-history-close"
+                    aria-label="Close reward history"
+                    onClick={() => setIsRewardHistoryOpen(false)}
+                  >
+                    ×
+                  </button>
+                </header>
+
+                <div className="reward-history-balance">
+                  <img src={vesCoin} alt="" />
+                  <div>
+                    <span>Available wallet balance</span>
+                    <strong>{walletBalance} VEs</strong>
+                  </div>
+                </div>
+
+                <div className="reward-history-list">
+                  {historyLoading ? (
+                    <p className="reward-history-message">
+                      Loading your rewards...
+                    </p>
+                  ) : historyError ? (
+                    <div className="reward-history-message">
+                      <p>{historyError}</p>
+                      <button
+                        type="button"
+                        onClick={fetchRewardHistory}
+                      >
+                        Try again
+                      </button>
+                    </div>
+                  ) : rewardHistory.length === 0 ? (
+                    <p className="reward-history-message">
+                      No claimed rewards yet. Claim your first daily reward
+                      to see it here!
+                    </p>
+                  ) : (
+                    rewardHistory.map((claim) => {
+                      const isGiftCard =
+                        String(claim.rewardType).toUpperCase() === "GIFT_CARD";
+
+                      const rewardName = isGiftCard
+                        ? `${claim.provider || "Gift Card"} Gift Card`
+                        : `${claim.amount} VEs`;
+
+                      return (
+                        <article
+                          className="reward-history-item"
+                          key={claim._id || claim.claimId}
+                        >
+                          <div className="reward-history-item-icon">
+                            {isGiftCard ? "🎁" : "🪙"}
+                          </div>
+
+                          <div className="reward-history-item-details">
+                            <strong>{rewardName}</strong>
+                            <span>Daily Streak · Day {claim.day}</span>
+                            <small>
+                              {claim.claimedAt
+                                ? new Date(claim.claimedAt).toLocaleString(
+                                  "en-IN",
+                                  {
+                                    dateStyle: "medium",
+                                    timeStyle: "short",
+                                    timeZone: "Asia/Kolkata",
+                                  }
+                                )
+                                : "Date unavailable"}
+                            </small>
+                          </div>
+
+                          <span className="reward-history-status">
+                            Claimed
+                          </span>
+                        </article>
+                      );
+                    })
+                  )}
+                </div>
+              </section>
+            </div>
+          )}
 
           {/* CPA Demo Modal */}
           {
